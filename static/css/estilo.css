@@ -170,3 +170,34 @@ h1 {
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
 }
+.grade-materias {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.cartao-materia {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.inicial {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: var(--espessura) solid var(--destaque);
+    color: var(--destaque);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.nome-materia {
+    font-weight: 500;
+}

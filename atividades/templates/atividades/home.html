@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block titulo %}Matérias{% endblock %}
+
+{% block conteudo %}
+<h1>Matérias</h1>
+<p class="suave">Escolha uma matéria para ver as atividades.</p>
+
+<ul class="grade-materias">
+    {% for materia in materias %}
+    <li class="cartao cartao-materia">
+        <span class="inicial" aria-hidden="true">{{ materia.nome|first }}</span>
+        <span class="nome-materia">{{ materia.nome }}</span>
+    </li>
+    {% empty %}
+    <li class="cartao">Nenhuma matéria cadastrada ainda.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

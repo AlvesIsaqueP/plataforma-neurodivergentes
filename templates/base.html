@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Plataforma{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <script src="{% static 'js/tema.js' %}"></script>
+</head>
+<body>
+    <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="cabecalho">
+        <a class="marca" href="/">Plataforma</a>
+
+        <div class="seletor-tema" role="group" aria-label="Escolher tema">
+            <button type="button" data-tema="claro">Claro</button>
+            <button type="button" data-tema="escuro">Escuro</button>
+            <button type="button" data-tema="contraste">Alto contraste</button>
+        </div>
+    </header>
+
+    <main id="conteudo">
+        {% block conteudo %}{% endblock %}
+    </main>
+</body>
+</html>

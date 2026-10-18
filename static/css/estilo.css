@@ -1,0 +1,172 @@
+:root {
+    --fundo: #ffffff;
+    --cartao: #f6f6f4;
+    --borda: #e4e4e0;
+    --texto: #1f1f1f;
+    --texto-suave: #5f5f5f;
+    --destaque: #2f5fd0;
+    --botao-fundo: #1f1f1f;
+    --botao-texto: #ffffff;
+    --foco: #2f5fd0;
+    --espessura: 1px;
+}
+
+:root[data-tema="escuro"] {
+    --fundo: #17181a;
+    --cartao: #212225;
+    --borda: #2e3033;
+    --texto: #f0f0ee;
+    --texto-suave: #a8a8a8;
+    --destaque: #7aa2ff;
+    --botao-fundo: #f0f0ee;
+    --botao-texto: #17181a;
+    --foco: #7aa2ff;
+}
+
+:root[data-tema="contraste"] {
+    --fundo: #000000;
+    --cartao: #000000;
+    --borda: #ffffff;
+    --texto: #ffffff;
+    --texto-suave: #ffffff;
+    --destaque: #ffff00;
+    --botao-fundo: #ffff00;
+    --botao-texto: #000000;
+    --foco: #ffff00;
+    --espessura: 2px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.6;
+}
+
+a, button, input {
+    font: inherit;
+}
+
+:focus-visible {
+    outline: 3px solid var(--foco);
+    outline-offset: 2px;
+}
+
+.pular-link {
+    position: absolute;
+    left: -9999px;
+    background: var(--botao-fundo);
+    color: var(--botao-texto);
+    padding: 0.5rem 1rem;
+}
+
+.pular-link:focus {
+    left: 1rem;
+    top: 1rem;
+}
+
+.cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    border-bottom: var(--espessura) solid var(--borda);
+}
+
+.marca {
+    color: var(--texto);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.seletor-tema {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.seletor-tema button {
+    background: transparent;
+    color: var(--texto);
+    border: var(--espessura) solid var(--borda);
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+}
+
+.seletor-tema button[aria-pressed="true"] {
+    background: var(--destaque);
+    color: var(--fundo);
+    border-color: var(--destaque);
+}
+
+main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.cartao {
+    background: var(--cartao);
+    border: var(--espessura) solid var(--borda);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.campo {
+    margin-bottom: 1rem;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--texto-suave);
+}
+
+.campo input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    background: var(--fundo);
+    color: var(--texto);
+    border: var(--espessura) solid var(--borda);
+    border-radius: 8px;
+}
+
+.botao {
+    width: 100%;
+    background: var(--botao-fundo);
+    color: var(--botao-texto);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+h1 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0 0 0.25rem;
+}
+
+.suave {
+    color: var(--texto-suave);
+    margin: 0 0 1.5rem;
+}
+
+.cartao-login {
+    max-width: 420px;
+    margin: 2rem auto;
+}
+
+.alerta {
+    border: var(--espessura) solid var(--destaque);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}

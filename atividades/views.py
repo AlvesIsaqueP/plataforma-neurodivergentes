@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 from .models import Materia, Atividade, Questao, Progresso
@@ -30,3 +30,9 @@ class ProgressoViewSet(viewsets.ModelViewSet):
 def home(request):
     materias = Materia.objects.all()
     return render(request, 'atividades/home.html', {'materias': materias})
+
+@login_required
+def materia_detalhe(request, pk):
+    materia = get_object_or_404(Materia, pk=pk)
+    atividades = materia.atividades.all()
+    return render(request, 'atividades/materia.html', {'materia': materia, 'atividades': atividades})

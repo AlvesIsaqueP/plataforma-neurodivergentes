@@ -201,3 +201,45 @@ h1 {
 .nome-materia {
     font-weight: 500;
 }
+
+a {
+    color: var(--destaque);
+}
+
+a.cartao-materia {
+    color: var(--texto);
+    text-decoration: none;
+}
+
+a.cartao-materia:hover {
+    border-color: var(--destaque);
+}
+
+.lista-atividades {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+}
+
+.lista-atividades h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.botao-link {
+    display: inline-block;
+    width: auto;
+    text-decoration: none;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ materia.nome }}{% endblock %}
+
+{% block conteudo %}
+<p><a href="{% url 'home' %}">← Voltar para as matérias</a></p>
+<h1>{{ materia.nome }}</h1>
+<p class="suave">Atividades disponíveis.</p>
+
+<ul class="lista-atividades">
+    {% for atividade in atividades %}
+    <li class="cartao">
+        <h2>{{ atividade.titulo }}</h2>
+        <p class="suave">{{ atividade.get_tipo_display }}</p>
+        {% if atividade.descricao %}<p>{{ atividade.descricao }}</p>{% endif %}
+        {% if atividade.arquivo_ou_url %}
+        <a class="botao botao-link" href="{{ atividade.arquivo_ou_url }}" target="_blank" rel="noopener">Abrir atividade<span class="sr-only"> (abre em nova aba)</span></a>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li class="cartao">Nenhuma atividade cadastrada nesta matéria ainda.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

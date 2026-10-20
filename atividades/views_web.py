@@ -20,8 +20,9 @@ def _professor(request):
 
 # ---------- Início ----------
 
-@login_required
 def home(request):
+    if not request.user.is_authenticated:
+        return render(request, 'atividades/landing.html')
     ctx = {}
     if eh_professor(request.user):
         ctx.update(

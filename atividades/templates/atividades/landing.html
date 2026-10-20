@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}Varius: educação inclusiva{% endblock %}
+
+{% block conteudo %}
+<section class="heroi" aria-labelledby="titulo-heroi">
+    <div class="heroi-texto">
+        <h1 id="titulo-heroi">Aprender no seu ritmo, do seu jeito.</h1>
+        <p class="destaque-texto">O Varius é uma plataforma de educação inclusiva pensada para crianças e adolescentes neurodivergentes e para jovens em situação de vulnerabilidade.</p>
+        <p class="heroi-botoes">
+            <a class="botao botao-link" href="{% url 'cadastro' %}">Criar conta</a>
+            <a class="botao-contorno" href="{% url 'login' %}">Já tenho conta</a>
+        </p>
+    </div>
+    <img src="{% static 'img/logo-varius.png' %}" alt="Logo do Varius" class="logo-login heroi-logo">
+</section>
+
+<section class="bloco" id="sobre" aria-labelledby="titulo-sobre">
+    <div class="bloco-texto">
+        <h2 id="titulo-sobre">Sobre nós</h2>
+        <p>O Varius nasceu como um Projeto Integrador da Univesp, com uma pergunta simples: como tornar o estudo mais acolhedor para quem aprende de formas diferentes?</p>
+        <p>Cada pessoa tem seu tempo, seus interesses e suas necessidades. Por isso, a plataforma reúne aulas e atividades em um ambiente organizado, com poucos elementos na tela e opções de tema claro, escuro e alto contraste.</p>
+        <p>Nosso objetivo é que o aluno se sinta seguro para aprender e que o professor tenha as ferramentas para acompanhar cada passo.</p>
+    </div>
+    <svg class="bloco-arte" viewBox="0 0 240 200" role="img" aria-label="Ilustração de formas coloridas que se encaixam, representando diferentes jeitos de aprender">
+        <circle cx="90" cy="100" r="70" fill="var(--destaque)" opacity="0.25"/>
+        <circle cx="150" cy="100" r="70" fill="var(--destaque)" opacity="0.45"/>
+        <rect x="95" y="55" width="50" height="90" rx="25" fill="var(--destaque)"/>
+    </svg>
+</section>
+
+<section class="bloco-cheio" aria-labelledby="titulo-motivacao">
+    <h2 id="titulo-motivacao">O que nos motiva</h2>
+    <p class="suave">Quatro ideias guiam cada decisão do projeto.</p>
+    <ul class="grade-cartoes grade-motivos">
+        <li class="cartao motivo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>
+            <h3>Acolhimento</h3>
+            <p>Um espaço calmo e previsível, onde errar faz parte de aprender.</p>
+        </li>
+        <li class="cartao motivo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <h3>Acessibilidade</h3>
+            <p>Alto contraste, navegação pelo teclado e leitura compatível com leitores de tela.</p>
+        </li>
+        <li class="cartao motivo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2.5"/><circle cx="15" cy="17" r="2.5"/></svg>
+            <h3>Cada um no seu ritmo</h3>
+            <p>Atividades de vários tipos, para respeitar o jeito e o tempo de cada aluno.</p>
+        </li>
+        <li class="cartao motivo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.2 0 4 1.8 4 4"/></svg>
+            <h3>Educação para todos</h3>
+            <p>Oportunidade de aprender também para jovens em situação de vulnerabilidade.</p>
+        </li>
+    </ul>
+</section>
+
+<section class="bloco-cheio" aria-labelledby="titulo-como">
+    <h2 id="titulo-como">Como funciona</h2>
+    <div class="duas-colunas">
+        <div class="cartao">
+            <h3>Para o aluno</h3>
+            <ul class="lista-simples">
+                <li>Assiste às aulas de cada matéria</li>
+                <li>Faz as atividades e envia as respostas</li>
+                <li>Acompanha as notas e os comentários</li>
+            </ul>
+        </div>
+        <div class="cartao">
+            <h3>Para o professor</h3>
+            <ul class="lista-simples">
+                <li>Cadastra matérias, aulas e atividades</li>
+                <li>Corrige as respostas escritas</li>
+                <li>Acompanha o desempenho de cada aluno</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="chamada cartao" aria-labelledby="titulo-chamada">
+    <h2 id="titulo-chamada">Pronto para começar?</h2>
+    <p>Crie sua conta de aluno ou professor em menos de um minuto.</p>
+    <p class="heroi-botoes">
+        <a class="botao botao-link" href="{% url 'cadastro' %}">Criar conta</a>
+        <a class="botao-contorno" href="{% url 'login' %}">Entrar</a>
+    </p>
+</section>
+{% endblock %}

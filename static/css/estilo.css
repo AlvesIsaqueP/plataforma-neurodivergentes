@@ -479,3 +479,140 @@ fieldset.campo {
     text-align: center;
     padding: 0.5rem 1rem;
 }
+
+/* ---------- Página inicial (landing) ---------- */
+.acesso {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.acesso a:not(.botao) {
+    color: var(--texto);
+}
+
+.botao-topo {
+    padding: 0.4rem 1rem;
+}
+
+.heroi {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    padding: 1.5rem 0 3rem;
+}
+
+.heroi h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.15;
+    margin: 0 0 1rem;
+}
+
+.destaque-texto {
+    font-size: 1.2rem;
+    color: var(--texto-suave);
+}
+
+.heroi-botoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.botao-contorno {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: var(--espessura) solid var(--texto);
+    border-radius: 8px;
+    color: var(--texto);
+    text-decoration: none;
+}
+
+.botao-contorno:hover {
+    border-color: var(--destaque);
+    color: var(--destaque);
+}
+
+.heroi-logo {
+    max-width: 320px;
+    width: 100%;
+    justify-self: center;
+}
+
+.bloco {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    padding: 2rem 0;
+}
+
+.bloco-arte {
+    width: 100%;
+    max-width: 280px;
+    justify-self: center;
+}
+
+.bloco-cheio {
+    padding: 2rem 0;
+}
+
+.bloco h2,
+.bloco-cheio h2,
+.chamada h2 {
+    font-size: 1.8rem;
+    margin-top: 0;
+}
+
+.grade-motivos {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.motivo svg {
+    width: 40px;
+    height: 40px;
+    fill: none;
+    stroke: var(--destaque);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.motivo h3 {
+    margin: 0.75rem 0 0.25rem;
+}
+
+.motivo p {
+    margin: 0;
+    color: var(--texto-suave);
+}
+
+.duas-colunas {
+    display: grid;
+    gap: 1rem;
+}
+
+.lista-simples {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.chamada {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.chamada .heroi-botoes {
+    justify-content: center;
+}
+
+@media (min-width: 800px) {
+    .heroi,
+    .bloco {
+        grid-template-columns: 1.4fr 1fr;
+    }
+
+    .duas-colunas {
+        grid-template-columns: 1fr 1fr;
+    }
+}

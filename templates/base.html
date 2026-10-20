@@ -33,6 +33,13 @@
                 {% csrf_token %}
                 <button type="submit" class="botao-sair">Sair</button>
             </form>
+            {% else %}
+            {% with n=request.resolver_match.url_name %}
+            <nav class="acesso" aria-label="Acesso">
+                {% if n != 'cadastro' %}<a href="{% url 'cadastro' %}">Criar conta</a>{% endif %}
+                {% if n != 'login' %}<a class="botao botao-link botao-topo" href="{% url 'login' %}">Entrar</a>{% endif %}
+            </nav>
+            {% endwith %}
             {% endif %}
         </div>
     </header>

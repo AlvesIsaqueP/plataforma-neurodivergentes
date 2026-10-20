@@ -22,3 +22,18 @@ class ProfessorEscreveTodosLeem(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         return eh_professor(request.user)
+
+
+def professor_required(view):
+    """Decorator para páginas: exige login e perfil de professor (ou admin)."""
+    from functools import wraps
+    from django.contrib.auth.decorators import login_required
+    from django.core.exceptions import PermissionDenied
+
+    @wraps(view)
+    @login_required
+    def envolvida(request, *args, **kwargs):
+        if not eh_professor(request.user):
+            raise PermissionDenied
+        return view(request, *args, **kwargs)
+    return envolvida

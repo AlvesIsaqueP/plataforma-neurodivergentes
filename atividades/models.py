@@ -10,6 +10,21 @@ class Materia(models.Model):
         return self.nome
 
 
+class Aula(models.Model):
+    materia = models.ForeignKey(Materia, on_delete=models.CASCADE, related_name='aulas')
+    titulo = models.CharField(max_length=200)
+    descricao = models.TextField(blank=True)
+    link = models.CharField(max_length=500, blank=True, help_text="Link de vídeo, slide ou material (opcional)")
+    criado_por = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True, blank=True, related_name='aulas')
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['criado_em']
+
+    def __str__(self):
+        return self.titulo
+
+
 class Atividade(models.Model):
     TIPOS = [
         ('jogo', 'Jogo'),
@@ -52,17 +67,33 @@ class Progresso(models.Model):
     STATUS = [
         ('nao_iniciado', 'Não iniciado'),
         ('em_andamento', 'Em andamento'),
+        ('aguardando_correcao', 'Aguardando correção'),
         ('concluido', 'Concluído'),
     ]
 
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='progressos')
     atividade = models.ForeignKey(Atividade, on_delete=models.CASCADE, related_name='progressos')
-    status = models.CharField(max_length=20, choices=STATUS, default='nao_iniciado')
+    status = models.CharField(max_length=25, choices=STATUS, default='nao_iniciado')
     pontuacao = models.FloatField(null=True, blank=True)
     data_conclusao = models.DateTimeField(null=True, blank=True)
+    enviado_em = models.DateTimeField(null=True, blank=True)
+    comentario = models.TextField(blank=True)
 
     class Meta:
         unique_together = ('aluno', 'atividade')
 
     def __str__(self):
         return f"{self.aluno.nome} - {self.atividade.titulo}"
+
+
+class Resposta(models.Model):
+    progresso = models.ForeignKey(Progresso, on_delete=models.CASCADE, related_name='respostas')
+    questao = models.ForeignKey(Questao, on_delete=models.CASCADE, related_name='respostas')
+    texto = models.TextField()
+    correta = models.BooleanField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('progresso', 'questao')
+
+    def __str__(self):
+        return f"Resposta de {self.progresso.aluno.nome}"

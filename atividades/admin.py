@@ -1,7 +1,9 @@
 from django.contrib import admin
-from .models import Materia, Atividade, Questao, Progresso
+from .models import Materia, Aula, Atividade, Questao, Progresso, Resposta
 
 admin.site.register(Materia)
+admin.site.register(Aula)
 admin.site.register(Atividade)
 admin.site.register(Questao)
 admin.site.register(Progresso)
+admin.site.register(Resposta)

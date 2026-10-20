@@ -33,8 +33,32 @@
         </div>
     </header>
 
-    <main id="conteudo">
-        {% block conteudo %}{% endblock %}
-    </main>
+    <div class="{% if papel %}layout{% endif %}">
+        {% if papel %}
+        {% with n=request.resolver_match.url_name %}
+        <nav class="menu-lateral" aria-label="Menu principal">
+            <p class="menu-usuario">{{ nome_usuario }}<br><span class="suave">{% if papel == 'professor' %}Professor{% else %}Aluno{% endif %}</span></p>
+            <ul>
+                <li><a href="{% url 'home' %}" {% if n == 'home' %}aria-current="page"{% endif %}>Início</a></li>
+                {% if papel == 'professor' %}
+                <li><a href="{% url 'alunos' %}" {% if n == 'alunos' or n == 'aluno' %}aria-current="page"{% endif %}>Alunos</a></li>
+                {% endif %}
+                <li><a href="{% url 'materias' %}" {% if n == 'materias' or n == 'materia' or n == 'materia_nova' or n == 'aula_nova' %}aria-current="page"{% endif %}>Matérias</a></li>
+                <li><a href="{% url 'atividades' %}" {% if n == 'atividades' or n == 'atividade' or n == 'atividade_nova' or n == 'questao_nova' %}aria-current="page"{% endif %}>Atividades</a></li>
+                <li><a href="{% url 'notas' %}" {% if n == 'notas' or n == 'corrigir' %}aria-current="page"{% endif %}>Notas</a></li>
+            </ul>
+        </nav>
+        {% endwith %}
+        {% endif %}
+
+        <main id="conteudo">
+            {% if messages %}
+            <div class="mensagens" role="status">
+                {% for m in messages %}<p class="mensagem">{{ m }}</p>{% endfor %}
+            </div>
+            {% endif %}
+            {% block conteudo %}{% endblock %}
+        </main>
+    </div>
 </body>
 </html>

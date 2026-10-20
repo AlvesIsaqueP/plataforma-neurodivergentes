@@ -1,0 +1,9 @@
+{% for campo in form %}
+<div class="campo">
+    <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+    {{ campo }}
+    {% if campo.help_text %}<small class="suave">{{ campo.help_text }}</small>{% endif %}
+    {% for erro in campo.errors %}<p class="erro-campo" role="alert">{{ erro }}</p>{% endfor %}
+</div>
+{% endfor %}
+{% for erro in form.non_field_errors %}<p class="erro-campo" role="alert">{{ erro }}</p>{% endfor %}

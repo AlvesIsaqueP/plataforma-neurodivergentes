@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}{{ aluno.nome }}{% endblock %}
+{% block conteudo %}
+<p><a href="{% url 'alunos' %}">← Voltar para os alunos</a></p>
+<h1>{{ aluno.nome }}</h1>
+{% if aluno.estilo_aprendizagem %}<p class="suave">Estilo de aprendizagem: {{ aluno.get_estilo_aprendizagem_display }}</p>{% endif %}
+{% if aluno.preferencias %}<p class="suave">Preferências: {{ aluno.preferencias }}</p>{% endif %}
+<h2>Notas</h2>
+{% include "atividades/_tabela_notas.html" with legenda="Notas do aluno" %}
+{% endblock %}

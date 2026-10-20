@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Atividades{% endblock %}
+{% block conteudo %}
+<h1>Atividades</h1>
+<p class="suave">Exercícios para praticar.</p>
+{% if papel == 'professor' %}<p><a class="botao botao-link" href="{% url 'atividade_nova' %}">Nova atividade</a></p>{% endif %}
+<ul class="lista-atividades">
+    {% for a in atividades %}
+    <li class="cartao">
+        <h2><a href="{% url 'atividade' a.pk %}">{{ a.titulo }}</a></h2>
+        <p class="suave">{{ a.materia.nome }} · {{ a.get_tipo_display }}
+            {% if papel == 'aluno' %} · <strong>{% if a.progresso_aluno %}{{ a.progresso_aluno.get_status_display }}{% else %}Não iniciado{% endif %}</strong>{% endif %}
+        </p>
+    </li>
+    {% empty %}
+    <li class="cartao">Nenhuma atividade cadastrada ainda.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

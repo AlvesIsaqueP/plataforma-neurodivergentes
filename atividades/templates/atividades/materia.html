@@ -1,24 +1,29 @@
 {% extends "base.html" %}
-
 {% block titulo %}{{ materia.nome }}{% endblock %}
-
 {% block conteudo %}
-<p><a href="{% url 'home' %}">← Voltar para as matérias</a></p>
+<p><a href="{% url 'materias' %}">← Voltar para as matérias</a></p>
 <h1>{{ materia.nome }}</h1>
-<p class="suave">Atividades disponíveis.</p>
 
+<h2>Aulas</h2>
+{% if papel == 'professor' %}<p><a class="botao botao-link" href="{% url 'aula_nova' materia.pk %}">Adicionar aula</a></p>{% endif %}
 <ul class="lista-atividades">
-    {% for atividade in atividades %}
+    {% for aula in aulas %}
     <li class="cartao">
-        <h2>{{ atividade.titulo }}</h2>
-        <p class="suave">{{ atividade.get_tipo_display }}</p>
-        {% if atividade.descricao %}<p>{{ atividade.descricao }}</p>{% endif %}
-        {% if atividade.arquivo_ou_url %}
-        <a class="botao botao-link" href="{{ atividade.arquivo_ou_url }}" target="_blank" rel="noopener">Abrir atividade<span class="sr-only"> (abre em nova aba)</span></a>
-        {% endif %}
+        <h3>{{ aula.titulo }}</h3>
+        {% if aula.descricao %}<p>{{ aula.descricao|linebreaksbr }}</p>{% endif %}
+        {% if aula.link %}<a class="botao botao-link" href="{{ aula.link }}" target="_blank" rel="noopener">Abrir material<span class="sr-only"> (abre em nova aba)</span></a>{% endif %}
     </li>
     {% empty %}
-    <li class="cartao">Nenhuma atividade cadastrada nesta matéria ainda.</li>
+    <li class="cartao">Nenhuma aula cadastrada nesta matéria ainda.</li>
+    {% endfor %}
+</ul>
+
+<h2>Atividades desta matéria</h2>
+<ul class="lista-atividades">
+    {% for a in atividades %}
+    <li class="cartao"><a href="{% url 'atividade' a.pk %}">{{ a.titulo }}</a> <span class="suave">({{ a.get_tipo_display }})</span></li>
+    {% empty %}
+    <li class="cartao">Nenhuma atividade nesta matéria ainda.</li>
     {% endfor %}
 </ul>
 {% endblock %}

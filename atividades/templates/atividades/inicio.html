@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block titulo %}Início{% endblock %}
+{% block conteudo %}
+<h1>Olá, {{ nome_usuario }}</h1>
+
+{% if papel == 'professor' %}
+<p class="suave">Resumo da plataforma.</p>
+<ul class="grade-cartoes">
+    <li><a class="cartao resumo" href="{% url 'alunos' %}"><span class="numero">{{ total_alunos }}</span> Alunos</a></li>
+    <li><a class="cartao resumo" href="{% url 'materias' %}"><span class="numero">{{ total_materias }}</span> Matérias</a></li>
+    <li><a class="cartao resumo" href="{% url 'atividades' %}"><span class="numero">{{ total_atividades }}</span> Atividades</a></li>
+</ul>
+<h2>Aguardando correção</h2>
+<ul class="lista-atividades">
+    {% for p in pendentes %}
+    <li class="cartao">
+        <strong>{{ p.aluno.nome }}</strong> — {{ p.atividade.titulo }}
+        <a class="botao botao-link" href="{% url 'corrigir' p.pk %}">Corrigir<span class="sr-only"> {{ p.atividade.titulo }} de {{ p.aluno.nome }}</span></a>
+    </li>
+    {% empty %}
+    <li class="cartao">Nenhuma correção pendente.</li>
+    {% endfor %}
+</ul>
+
+{% elif papel == 'aluno' %}
+<p class="suave">Vamos aprender hoje?</p>
+<ul class="grade-cartoes">
+    <li><a class="cartao resumo" href="{% url 'atividades' %}"><span class="numero">{{ a_fazer }}</span> Atividades para fazer</a></li>
+    <li><a class="cartao resumo" href="{% url 'materias' %}"><span class="numero" aria-hidden="true">→</span> Ver matérias</a></li>
+</ul>
+<h2>Últimas notas</h2>
+<ul class="lista-atividades">
+    {% for p in ultimas_notas %}
+    <li class="cartao">{{ p.atividade.titulo }}: <strong>{{ p.pontuacao }}</strong></li>
+    {% empty %}
+    <li class="cartao">Você ainda não tem notas.</li>
+    {% endfor %}
+</ul>
+
+{% else %}
+<p class="cartao">Sua conta ainda não tem perfil de aluno ou professor. Peça ajuda à equipe do projeto.</p>
+{% endif %}
+{% endblock %}

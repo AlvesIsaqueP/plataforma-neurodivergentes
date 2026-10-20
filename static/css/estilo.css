@@ -616,3 +616,88 @@ fieldset.campo {
         grid-template-columns: 1fr 1fr;
     }
 }
+
+
+/* ---------- Menu de acessibilidade ---------- */
+.menu-acess {
+    position: relative;
+}
+
+.botao-acess {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    color: var(--texto);
+    border: var(--espessura) solid var(--borda);
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+}
+
+.botao-acess:hover,
+.botao-acess[aria-expanded="true"] {
+    border-color: var(--destaque);
+}
+
+.botao-acess svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.painel-acess {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 10;
+    min-width: 200px;
+    background: var(--fundo);
+    border: var(--espessura) solid var(--borda);
+    border-radius: 12px;
+    padding: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.painel-acess[hidden] {
+    display: none;
+}
+
+.painel-titulo {
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+}
+
+.painel-acess .seletor-tema {
+    flex-direction: column;
+}
+
+.painel-acess .seletor-tema button {
+    text-align: left;
+}
+
+@media (max-width: 520px) {
+    .cabecalho {
+        padding: 0.6rem 1rem;
+    }
+
+    .painel-acess {
+        left: 0;
+        right: auto;
+    }
+
+    .acoes {
+        gap: 0.5rem;
+    }
+
+    .botao-acess,
+    .botao-sair,
+    .botao-topo {
+        font-size: 0.9rem;
+        padding: 0.3rem 0.6rem;
+    }
+}

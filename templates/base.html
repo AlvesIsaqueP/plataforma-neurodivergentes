@@ -22,10 +22,19 @@
         </a>
 
         <div class="acoes">
-            <div class="seletor-tema" role="group" aria-label="Escolher tema">
-                <button type="button" data-tema="claro">Claro</button>
-                <button type="button" data-tema="escuro">Escuro</button>
-                <button type="button" data-tema="contraste">Alto contraste</button>
+            <div class="menu-acess">
+                <button type="button" class="botao-acess" id="botao-acess" aria-expanded="false" aria-controls="painel-acess">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2"/><path d="M5 8.5h14M12 8.5v5m0 0l-3.5 6.5M12 13.5l3.5 6.5"/></svg>
+                    Acessibilidade
+                </button>
+                <div class="painel-acess" id="painel-acess" hidden>
+                    <p class="painel-titulo" id="titulo-tema">Tema da página</p>
+                    <div class="seletor-tema" role="group" aria-labelledby="titulo-tema">
+                        <button type="button" data-tema="claro">Claro</button>
+                        <button type="button" data-tema="escuro">Escuro</button>
+                        <button type="button" data-tema="contraste">Alto contraste</button>
+                    </div>
+                </div>
             </div>
 
             {% if user.is_authenticated %}

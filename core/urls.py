@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/', include('usuarios.urls')),
     path('api/', include('atividades.urls')),
     path('login/', auth_views.LoginView.as_view(template_name='usuarios/login.html'), name='login'),
+    path('sair/', auth_views.LogoutView.as_view(), name='logout'),
     path('', atividades_views.home, name='home'),
     path('materias/<int:pk>/', atividades_views.materia_detalhe, name='materia'),
 ]

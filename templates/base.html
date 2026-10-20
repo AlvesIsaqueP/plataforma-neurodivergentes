@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block titulo %}Plataforma{% endblock %}</title>
+    <title>{% block titulo %}Varius{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
     <script src="{% static 'js/tema.js' %}"></script>
 </head>
@@ -12,12 +12,24 @@
     <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
 
     <header class="cabecalho">
-        <a class="marca" href="/">Plataforma</a>
+        <a class="marca" href="/">
+            <img src="{% static 'img/logo-simbolo.png' %}" alt="" class="logo">
+            <span>Varius</span>
+        </a>
 
-        <div class="seletor-tema" role="group" aria-label="Escolher tema">
-            <button type="button" data-tema="claro">Claro</button>
-            <button type="button" data-tema="escuro">Escuro</button>
-            <button type="button" data-tema="contraste">Alto contraste</button>
+        <div class="acoes">
+            <div class="seletor-tema" role="group" aria-label="Escolher tema">
+                <button type="button" data-tema="claro">Claro</button>
+                <button type="button" data-tema="escuro">Escuro</button>
+                <button type="button" data-tema="contraste">Alto contraste</button>
+            </div>
+
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}" class="form-sair">
+                {% csrf_token %}
+                <button type="submit" class="botao-sair">Sair</button>
+            </form>
+            {% endif %}
         </div>
     </header>
 

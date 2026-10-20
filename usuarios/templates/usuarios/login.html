@@ -1,9 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block titulo %}Entrar{% endblock %}
 
 {% block conteudo %}
 <section class="cartao cartao-login">
+    <img src="{% static 'img/logo-varius.png' %}" alt="Varius: educação inclusiva para crianças e adolescentes neurodivergentes" class="logo-login">
     <h1>Entrar</h1> 
     <p class="suave">Acesso para professores e responsáveis.</p>
 

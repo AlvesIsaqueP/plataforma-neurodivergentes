@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from atividades import views as atividades_views
+from usuarios import views as usuarios_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +26,7 @@ urlpatterns = [
     path('api/', include('usuarios.urls')),
     path('api/', include('atividades.urls')),
     path('login/', auth_views.LoginView.as_view(template_name='usuarios/login.html'), name='login'),
+    path('cadastro/', usuarios_views.cadastro, name='cadastro'),
     path('sair/', auth_views.LogoutView.as_view(), name='logout'),
     path('', atividades_views.home, name='home'),
     path('materias/<int:pk>/', atividades_views.materia_detalhe, name='materia'),

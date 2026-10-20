@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block titulo %}Criar conta{% endblock %}
+
+{% block conteudo %}
+<section class="cartao cartao-login">
+    <h1>Criar conta</h1>
+    <p class="suave">Escolha se você é aluno ou professor.</p>
+
+    {% if form.errors %}
+    <div class="alerta" role="alert">
+        Há campos para corrigir. Veja as mensagens abaixo.
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {% for campo in form %}
+        <div class="campo">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {{ campo }}
+            {% if campo.help_text %}<small class="suave" id="ajuda_{{ campo.name }}">{{ campo.help_text|safe }}</small>{% endif %}
+            {% for erro in campo.errors %}<p class="erro-campo" role="alert">{{ erro }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+        {% for erro in form.non_field_errors %}<p class="erro-campo" role="alert">{{ erro }}</p>{% endfor %}
+        <button type="submit" class="botao">Criar conta</button>
+    </form>
+    <p class="suave">Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
+</section>
+{% endblock %}

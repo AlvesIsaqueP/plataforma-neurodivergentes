@@ -140,3 +140,10 @@ MAILERS = {
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Código que professores informam ao se cadastrar (defina CODIGO_PROFESSOR no .env e no Render)
+CODIGO_PROFESSOR = os.getenv('CODIGO_PROFESSOR', '')
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
+}

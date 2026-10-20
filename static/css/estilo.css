@@ -129,7 +129,8 @@ main {
     color: var(--texto-suave);
 }
 
-.campo input {
+.campo input,
+.campo select {
     width: 100%;
     padding: 0.6rem 0.75rem;
     background: var(--fundo);
@@ -298,4 +299,22 @@ a.cartao-materia:hover {
 
 .botao-sair:hover {
     border-color: var(--destaque);
+}
+
+.erro-campo {
+    color: var(--texto);
+    border-left: 4px solid var(--destaque);
+    padding-left: 0.5rem;
+    margin: 0.25rem 0 0;
+    font-weight: 600;
+}
+
+.campo select {
+    width: 100%;
+    padding: 0.6rem;
+    font: inherit;
+    color: var(--texto);
+    background: var(--cartao);
+    border: var(--espessura) solid var(--borda);
+    border-radius: 8px;
 }

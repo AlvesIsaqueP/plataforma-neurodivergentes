@@ -7,7 +7,7 @@
 <section class="cartao cartao-login">
     <img src="{% static 'img/logo-varius.png' %}" alt="Varius: educação inclusiva para crianças e adolescentes neurodivergentes" class="logo-login">
     <h1>Entrar</h1> 
-    <p class="suave">Acesso para professores e responsáveis.</p>
+    <p class="suave">Acesso para professores e alunos.</p>
 
     {% if form.errors %}
     <div class="alerta" role="alert">
@@ -27,5 +27,6 @@
         </div>
         <button type="submit" class="botao">Entrar</button>
     </form>
+    <p class="suave">Ainda não tem conta? <a href="{% url 'cadastro' %}">Criar conta</a></p>
 </section>
 {% endblock %}

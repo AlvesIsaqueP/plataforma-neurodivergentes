@@ -140,7 +140,7 @@ MAILERS = {
 }
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'home'
 
 # Código que professores informam ao se cadastrar (defina CODIGO_PROFESSOR no .env e no Render)
 CODIGO_PROFESSOR = os.getenv('CODIGO_PROFESSOR', '')
@@ -148,3 +148,9 @@ CODIGO_PROFESSOR = os.getenv('CODIGO_PROFESSOR', '')
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
 }
+
+# Supabase Storage (slides das aulas) - valores no .env e no Render
+SUPABASE_URL = os.getenv('SUPABASE_URL', '')
+SUPABASE_SECRET_KEY = os.getenv('SUPABASE_SECRET_KEY', '')
+SUPABASE_BUCKET = os.getenv('SUPABASE_BUCKET', '')
+DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024

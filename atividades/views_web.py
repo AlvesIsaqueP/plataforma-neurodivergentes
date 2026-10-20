@@ -6,8 +6,9 @@ from django.utils import timezone
 
 from alunos.models import Aluno
 from usuarios.permissions import eh_professor, professor_required
-from .forms import MateriaForm, AulaForm, AtividadeForm, QuestaoForm, CorrecaoForm
-from .models import Materia, Aula, Atividade, Questao, Progresso, Resposta
+from . import slides as servico_slides
+from .forms import MateriaForm, AulaForm, AtividadeForm, QuestaoForm, CorrecaoForm, SlidesForm
+from .models import Materia, Aula, SlideAula, Atividade, Questao, Progresso, Resposta
 
 
 def _aluno(request):
@@ -79,11 +80,55 @@ def aula_nova(request, pk):
         aula.materia = materia
         aula.criado_por = _professor(request)
         aula.save()
-        messages.success(request, 'Aula adicionada.')
-        return redirect('materia', pk=materia.pk)
+        messages.success(request, 'Aula adicionada. Agora você pode enviar os slides em PDF.')
+        return redirect('aula', pk=aula.pk)
     return render(request, 'atividades/formulario.html', {
         'form': form, 'titulo': f'Nova aula em {materia.nome}',
         'voltar': 'materia', 'voltar_pk': materia.pk})
+
+
+@login_required
+def aula_detalhe(request, pk):
+    aula = get_object_or_404(Aula.objects.select_related('materia'), pk=pk)
+    return render(request, 'atividades/aula.html', {
+        'aula': aula, 'slides': list(aula.slides.all()), 'form_slides': SlidesForm()})
+
+
+@professor_required
+def aula_slides(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method != 'POST':
+        return redirect('aula', pk=pk)
+    form = SlidesForm(request.POST, request.FILES)
+    if not form.is_valid():
+        for erro in form.errors.get('pdf', ['Envie um arquivo PDF.']):
+            messages.error(request, erro)
+        return redirect('aula', pk=pk)
+    try:
+        novos = servico_slides.enviar_pdf(aula.pk, form.cleaned_data['pdf'].read())
+    except servico_slides.ErroSlides as erro:
+        messages.error(request, str(erro))
+        return redirect('aula', pk=pk)
+
+    antigos = list(aula.slides.values_list('caminho', flat=True))
+    with transaction.atomic():
+        aula.slides.all().delete()
+        SlideAula.objects.bulk_create(
+            [SlideAula(aula=aula, numero=n, caminho=c, texto=t) for n, c, t in novos])
+    servico_slides.apagar(antigos)
+    messages.success(request, f'{len(novos)} slides enviados.')
+    return redirect('aula', pk=pk)
+
+
+@professor_required
+def aula_slides_remover(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method == 'POST':
+        antigos = list(aula.slides.values_list('caminho', flat=True))
+        aula.slides.all().delete()
+        servico_slides.apagar(antigos)
+        messages.success(request, 'Slides removidos.')
+    return redirect('aula', pk=pk)
 
 
 # ---------- Atividades ----------

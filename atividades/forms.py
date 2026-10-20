@@ -15,6 +15,16 @@ class AulaForm(forms.ModelForm):
         widgets = {'descricao': forms.Textarea(attrs={'rows': 5})}
 
 
+class SlidesForm(forms.Form):
+    pdf = forms.FileField(label='Arquivo PDF dos slides')
+
+    def clean_pdf(self):
+        arquivo = self.cleaned_data['pdf']
+        if not arquivo.name.lower().endswith('.pdf'):
+            raise forms.ValidationError('Envie um arquivo PDF. No PowerPoint: Arquivo > Exportar > PDF.')
+        return arquivo
+
+
 class AtividadeForm(forms.ModelForm):
     class Meta:
         model = Atividade

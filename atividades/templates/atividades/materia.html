@@ -9,7 +9,8 @@
 <ul class="lista-atividades">
     {% for aula in aulas %}
     <li class="cartao">
-        <h3>{{ aula.titulo }}</h3>
+        <h3><a href="{% url 'aula' aula.pk %}">{{ aula.titulo }}</a></h3>
+        {% if aula.slides.exists %}<p class="suave">Com slides</p>{% endif %}
         {% if aula.descricao %}<p>{{ aula.descricao|linebreaksbr }}</p>{% endif %}
         {% if aula.link %}<a class="botao botao-link" href="{{ aula.link }}" target="_blank" rel="noopener">Abrir material<span class="sr-only"> (abre em nova aba)</span></a>{% endif %}
     </li>

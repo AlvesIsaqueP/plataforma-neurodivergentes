@@ -25,6 +25,25 @@ class Aula(models.Model):
         return self.titulo
 
 
+class SlideAula(models.Model):
+    aula = models.ForeignKey(Aula, on_delete=models.CASCADE, related_name='slides')
+    numero = models.PositiveSmallIntegerField()
+    caminho = models.CharField(max_length=300)
+    texto = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['numero']
+        unique_together = ('aula', 'numero')
+
+    @property
+    def url(self):
+        from .slides import url_publica
+        return url_publica(self.caminho)
+
+    def __str__(self):
+        return f"{self.aula.titulo} - slide {self.numero}"
+
+
 class Atividade(models.Model):
     TIPOS = [
         ('jogo', 'Jogo'),

@@ -8,7 +8,7 @@
 {% if atividade.arquivo_ou_url %}<p>Link: <a href="{{ atividade.arquivo_ou_url }}" target="_blank" rel="noopener">{{ atividade.arquivo_ou_url }}<span class="sr-only"> (abre em nova aba)</span></a></p>{% endif %}
 
 <h2>Quem recebe esta atividade</h2>
-<div class="cartao">
+<div class="cartao painel painel-unico">
     {% if alunos_atividade %}
     <ul class="lista-simples">{% for a in alunos_atividade %}<li>{{ a.nome }}</li>{% endfor %}</ul>
     {% else %}

@@ -6,25 +6,26 @@
 
 <h2>Aulas</h2>
 {% if papel == 'professor' %}<p><a class="botao botao-link" href="{% url 'aula_nova' %}?materia={{ materia.pk }}">Adicionar aula</a></p>{% endif %}
-<ul class="lista-atividades">
+<ul class="lista-cards">
     {% for aula in aulas %}
-    <li class="cartao">
+    <li class="cartao-item">
         <h3><a href="{% url 'aula' aula.pk %}">{{ aula.titulo }}</a></h3>
-        {% if aula.slides.exists %}<p class="suave">Com slides</p>{% endif %}
-        {% if aula.descricao %}<p>{{ aula.descricao|linebreaksbr }}</p>{% endif %}
-        {% if aula.link %}<a class="botao botao-link" href="{{ aula.link }}" target="_blank" rel="noopener">Abrir material<span class="sr-only"> (abre em nova aba)</span></a>{% endif %}
+        <p class="suave">{% if aula.slides.exists %}Com slides{% else %}Aula{% endif %}</p>
     </li>
     {% empty %}
-    <li class="cartao">{% if papel == 'professor' %}Nenhuma aula cadastrada nesta matéria ainda.{% else %}Nenhuma aula foi liberada para você nesta matéria.{% endif %}</li>
+    <li class="cartao-vazio">{% if papel == 'professor' %}Nenhuma aula cadastrada nesta matéria ainda.{% else %}Nenhuma aula foi liberada para você nesta matéria.{% endif %}</li>
     {% endfor %}
 </ul>
 
 <h2>Atividades desta matéria</h2>
-<ul class="lista-atividades">
+<ul class="lista-cards">
     {% for a in atividades %}
-    <li class="cartao"><a href="{% url 'atividade' a.pk %}">{{ a.titulo }}</a> <span class="suave">({{ a.get_tipo_display }})</span></li>
+    <li class="cartao-item">
+        <h3><a href="{% url 'atividade' a.pk %}">{{ a.titulo }}</a></h3>
+        <p class="suave">{{ a.get_tipo_display }}</p>
+    </li>
     {% empty %}
-    <li class="cartao">{% if papel == 'professor' %}Nenhuma atividade nesta matéria ainda.{% else %}Nenhuma atividade foi liberada para você nesta matéria.{% endif %}</li>
+    <li class="cartao-vazio">{% if papel == 'professor' %}Nenhuma atividade nesta matéria ainda.{% else %}Nenhuma atividade foi liberada para você nesta matéria.{% endif %}</li>
     {% endfor %}
 </ul>
 {% endblock %}

@@ -36,7 +36,8 @@
 {% endif %}
 
 {% if papel == 'professor' %}
-<section class="cartao" aria-labelledby="titulo-quem">
+<div class="paineis">
+<section class="cartao painel" aria-labelledby="titulo-quem">
     <h2 id="titulo-quem">Quem recebe esta aula</h2>
     {% if alunos_aula %}
     <ul class="lista-simples">{% for a in alunos_aula %}<li>{{ a.nome }}</li>{% endfor %}</ul>
@@ -46,7 +47,7 @@
     <p><a class="botao botao-link" href="{% url 'aula_atribuir' aula.pk %}">Escolher alunos</a></p>
 </section>
 
-<section class="cartao formulario" aria-labelledby="titulo-envio">
+<section class="cartao painel" aria-labelledby="titulo-envio">
     <h2 id="titulo-envio">{% if slides %}Trocar os slides{% else %}Enviar slides{% endif %}</h2>
     <p class="suave">Exporte sua apresentação como PDF (PowerPoint: Arquivo &gt; Exportar &gt; PDF). Cada página vira um slide. Máximo de 40 páginas e 20 MB.</p>
     <form method="post" action="{% url 'aula_slides' aula.pk %}" enctype="multipart/form-data">
@@ -55,7 +56,7 @@
             <label for="id_pdf">Arquivo PDF dos slides</label>
             <input type="file" name="pdf" id="id_pdf" accept="application/pdf,.pdf" required>
         </div>
-        <button type="submit" class="botao">Enviar</button>
+        <button type="submit" class="botao botao-auto">Enviar</button>
     </form>
     {% if slides %}
     <form method="post" action="{% url 'aula_slides_remover' aula.pk %}" class="form-remover">
@@ -64,6 +65,7 @@
     </form>
     {% endif %}
 </section>
+</div>
 {% endif %}
 {% endblock %}
 

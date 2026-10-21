@@ -842,3 +842,109 @@ fieldset.campo {
     background: transparent;
     font: inherit;
 }
+
+/* ---------- Listas de cards compactos e clicáveis ---------- */
+.lista-cards {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+}
+
+.cartao-item {
+    position: relative;
+    background: var(--cartao);
+    border: var(--espessura) solid var(--borda);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+}
+
+.cartao-item h2,
+.cartao-item h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.cartao-item p {
+    margin: 0.2rem 0 0;
+    font-size: 0.9rem;
+}
+
+.cartao-item a {
+    color: var(--texto);
+    text-decoration: none;
+}
+
+/* o link cobre o card inteiro, então o card todo é clicável */
+.cartao-item a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+}
+
+.cartao-item:hover,
+.cartao-item:focus-within {
+    border-color: var(--destaque);
+}
+
+.cartao-item a:focus-visible {
+    outline: none;
+}
+
+.cartao-item:focus-within {
+    outline: 3px solid var(--foco);
+    outline-offset: 2px;
+}
+
+.cartao-vazio {
+    grid-column: 1 / -1;
+    padding: 0.85rem 1rem;
+    border: var(--espessura) dashed var(--borda);
+    border-radius: 10px;
+    color: var(--texto-suave);
+}
+
+/* ---------- Painéis lado a lado ---------- */
+.paineis {
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    align-items: stretch;
+}
+
+.painel {
+    padding: 1.1rem 1.25rem;
+}
+
+.painel h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+}
+
+.painel p {
+    margin-top: 0;
+}
+
+.painel-unico {
+    max-width: 480px;
+    margin-bottom: 1.5rem;
+}
+
+.botao-auto {
+    width: auto;
+    padding: 0.5rem 1.25rem;
+}
+
+.painel .form-remover {
+    margin-top: 0.75rem;
+}
+
+@media (min-width: 900px) {
+    .paineis {
+        grid-template-columns: 1fr 1fr;
+    }
+}

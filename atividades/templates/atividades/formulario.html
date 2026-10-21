@@ -10,3 +10,8 @@
     <button type="submit" class="botao">Salvar</button>
 </form>
 {% endblock %}
+
+{% block scripts %}
+{% load static %}
+<script src="{% static 'js/marcar-todos.js' %}"></script>
+{% endblock %}

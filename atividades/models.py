@@ -16,6 +16,7 @@ class Aula(models.Model):
     descricao = models.TextField(blank=True)
     link = models.CharField(max_length=500, blank=True, help_text="Link de vídeo, slide ou material (opcional)")
     criado_por = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True, blank=True, related_name='aulas')
+    alunos = models.ManyToManyField(Aluno, blank=True, related_name='aulas_atribuidas')
     criado_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -59,6 +60,7 @@ class Atividade(models.Model):
     nivel_dificuldade = models.PositiveSmallIntegerField(default=1)
     arquivo_ou_url = models.CharField(max_length=500, blank=True)
     criado_por = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True, related_name='atividades')
+    alunos = models.ManyToManyField(Aluno, blank=True, related_name='atividades_atribuidas')
     criado_em = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

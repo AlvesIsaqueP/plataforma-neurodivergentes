@@ -36,6 +36,16 @@
 {% endif %}
 
 {% if papel == 'professor' %}
+<section class="cartao" aria-labelledby="titulo-quem">
+    <h2 id="titulo-quem">Quem recebe esta aula</h2>
+    {% if alunos_aula %}
+    <ul class="lista-simples">{% for a in alunos_aula %}<li>{{ a.nome }}</li>{% endfor %}</ul>
+    {% else %}
+    <p class="suave">Nenhum aluno recebeu esta aula ainda.</p>
+    {% endif %}
+    <p><a class="botao botao-link" href="{% url 'aula_atribuir' aula.pk %}">Escolher alunos</a></p>
+</section>
+
 <section class="cartao formulario" aria-labelledby="titulo-envio">
     <h2 id="titulo-envio">{% if slides %}Trocar os slides{% else %}Enviar slides{% endif %}</h2>
     <p class="suave">Exporte sua apresentação como PDF (PowerPoint: Arquivo &gt; Exportar &gt; PDF). Cada página vira um slide. Máximo de 40 páginas e 20 MB.</p>

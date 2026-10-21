@@ -14,7 +14,7 @@
     </a>
     </li>
     {% empty %}
-    <li class="cartao">Nenhuma matéria cadastrada ainda.</li>
+    <li class="cartao">{% if papel == 'professor' %}Nenhuma matéria cadastrada ainda.{% else %}Seu professor ainda não liberou conteúdo para você.{% endif %}</li>
     {% endfor %}
 </ul>
 {% endblock %}

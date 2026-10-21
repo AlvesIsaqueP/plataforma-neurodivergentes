@@ -17,6 +17,12 @@ class AtividadeViewSet(viewsets.ModelViewSet):
     serializer_class = AtividadeSerializer
     permission_classes = [ProfessorEscreveTodosLeem]
 
+    def get_queryset(self):
+        qs = Atividade.objects.all()
+        if eh_professor(self.request.user):
+            return qs
+        return qs.filter(alunos__usuario=self.request.user)
+
 
 class QuestaoViewSet(viewsets.ModelViewSet):
     queryset = Questao.objects.all()

@@ -7,6 +7,16 @@
 {% if atividade.descricao %}<p>{{ atividade.descricao|linebreaksbr }}</p>{% endif %}
 {% if atividade.arquivo_ou_url %}<p>Link: <a href="{{ atividade.arquivo_ou_url }}" target="_blank" rel="noopener">{{ atividade.arquivo_ou_url }}<span class="sr-only"> (abre em nova aba)</span></a></p>{% endif %}
 
+<h2>Quem recebe esta atividade</h2>
+<div class="cartao">
+    {% if alunos_atividade %}
+    <ul class="lista-simples">{% for a in alunos_atividade %}<li>{{ a.nome }}</li>{% endfor %}</ul>
+    {% else %}
+    <p class="suave">Nenhum aluno recebeu esta atividade ainda.</p>
+    {% endif %}
+    <p><a class="botao botao-link" href="{% url 'atividade_atribuir' atividade.pk %}">Escolher alunos</a></p>
+</div>
+
 <h2>Questões</h2>
 <p><a class="botao botao-link" href="{% url 'questao_nova' atividade.pk %}">Adicionar questão</a></p>
 <ol class="lista-atividades">

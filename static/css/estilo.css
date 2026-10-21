@@ -811,3 +811,34 @@ fieldset.campo {
     background: var(--fundo);
     color: var(--texto);
 }
+
+/* ---------- Escolha de alunos ---------- */
+.campo ul {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+}
+
+.campo ul li {
+    padding: 0.2rem 0;
+}
+
+.campo ul label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: var(--texto);
+    cursor: pointer;
+}
+
+.campo input[type="checkbox"] {
+    width: auto;
+}
+
+.marcar-todos {
+    margin: 0.25rem 0;
+    cursor: pointer;
+    background: transparent;
+    font: inherit;
+}

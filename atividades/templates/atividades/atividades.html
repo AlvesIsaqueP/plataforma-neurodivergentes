@@ -13,7 +13,7 @@
         </p>
     </li>
     {% empty %}
-    <li class="cartao">Nenhuma atividade cadastrada ainda.</li>
+    <li class="cartao">{% if papel == 'professor' %}Nenhuma atividade cadastrada ainda.{% else %}Seu professor ainda não liberou atividades para você.{% endif %}</li>
     {% endfor %}
 </ul>
 {% endblock %}

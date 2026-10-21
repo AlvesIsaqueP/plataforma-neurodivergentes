@@ -1,13 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from alunos.models import Aluno
 from usuarios.permissions import eh_professor, professor_required
 from . import slides as servico_slides
-from .forms import MateriaForm, AulaForm, AtividadeForm, QuestaoForm, CorrecaoForm, SlidesForm
+from .forms import (MateriaForm, AulaForm, AtividadeForm, QuestaoForm, CorrecaoForm, SlidesForm,
+                    AtribuirAulaForm, AtribuirAtividadeForm)
 from .models import Materia, Aula, SlideAula, Atividade, Questao, Progresso, Resposta
 
 
@@ -17,6 +19,14 @@ def _aluno(request):
 
 def _professor(request):
     return getattr(request.user, 'professor', None)
+
+
+def _visiveis(qs, request):
+    """Professor/admin vê tudo; aluno vê só o que foi atribuído a ele."""
+    if eh_professor(request.user):
+        return qs
+    aluno = _aluno(request)
+    return qs.filter(alunos=aluno).distinct() if aluno else qs.none()
 
 
 # ---------- Início ----------
@@ -36,7 +46,7 @@ def home(request):
         progressos = Progresso.objects.filter(aluno=_aluno(request))
         feitas = progressos.filter(status__in=['concluido', 'aguardando_correcao']).values_list('atividade_id', flat=True)
         ctx.update(
-            a_fazer=Atividade.objects.exclude(pk__in=feitas).count(),
+            a_fazer=Atividade.objects.filter(alunos=_aluno(request)).exclude(pk__in=feitas).count(),
             ultimas_notas=progressos.filter(status='concluido', pontuacao__isnull=False)
                                     .select_related('atividade').order_by('-data_conclusao')[:3],
         )
@@ -47,7 +57,13 @@ def home(request):
 
 @login_required
 def materias(request):
-    return render(request, 'atividades/materias.html', {'materias': Materia.objects.all()})
+    if eh_professor(request.user):
+        lista = Materia.objects.all()
+    else:
+        aluno = _aluno(request)
+        lista = (Materia.objects.filter(Q(aulas__alunos=aluno) | Q(atividades__alunos=aluno)).distinct()
+                 if aluno else Materia.objects.none())
+    return render(request, 'atividades/materias.html', {'materias': lista})
 
 
 @professor_required
@@ -66,32 +82,49 @@ def materia_detalhe(request, pk):
     materia = get_object_or_404(Materia, pk=pk)
     return render(request, 'atividades/materia.html', {
         'materia': materia,
-        'aulas': materia.aulas.all(),
-        'atividades': materia.atividades.all(),
+        'aulas': _visiveis(materia.aulas.all(), request),
+        'atividades': _visiveis(materia.atividades.all(), request),
     })
 
 
+@login_required
+def aulas(request):
+    lista = _visiveis(Aula.objects.select_related('materia'), request).order_by('materia__nome', 'criado_em')
+    return render(request, 'atividades/aulas.html', {'aulas': lista})
+
+
 @professor_required
-def aula_nova(request, pk):
-    materia = get_object_or_404(Materia, pk=pk)
-    form = AulaForm(request.POST or None)
+def aula_nova(request):
+    form = AulaForm(request.POST or None, initial={'materia': request.GET.get('materia')})
     if request.method == 'POST' and form.is_valid():
         aula = form.save(commit=False)
-        aula.materia = materia
         aula.criado_por = _professor(request)
         aula.save()
-        messages.success(request, 'Aula adicionada. Agora você pode enviar os slides em PDF.')
+        form.save_m2m()
+        messages.success(request, 'Aula criada. Agora você pode enviar os slides em PDF.')
         return redirect('aula', pk=aula.pk)
     return render(request, 'atividades/formulario.html', {
-        'form': form, 'titulo': f'Nova aula em {materia.nome}',
-        'voltar': 'materia', 'voltar_pk': materia.pk})
+        'form': form, 'titulo': 'Nova aula', 'voltar': 'aulas'})
+
+
+@professor_required
+def aula_atribuir(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    form = AtribuirAulaForm(request.POST if request.method == 'POST' else None, instance=aula)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Alunos da aula atualizados.')
+        return redirect('aula', pk=pk)
+    return render(request, 'atividades/formulario.html', {
+        'form': form, 'titulo': f'Quem recebe: {aula.titulo}', 'voltar': 'aula', 'voltar_pk': pk})
 
 
 @login_required
 def aula_detalhe(request, pk):
-    aula = get_object_or_404(Aula.objects.select_related('materia'), pk=pk)
+    aula = get_object_or_404(_visiveis(Aula.objects.select_related('materia'), request), pk=pk)
     return render(request, 'atividades/aula.html', {
-        'aula': aula, 'slides': list(aula.slides.all()), 'form_slides': SlidesForm()})
+        'aula': aula, 'slides': list(aula.slides.all()), 'form_slides': SlidesForm(),
+        'alunos_aula': aula.alunos.order_by('nome')})
 
 
 @professor_required
@@ -135,7 +168,7 @@ def aula_slides_remover(request, pk):
 
 @login_required
 def atividades(request):
-    lista = Atividade.objects.select_related('materia').order_by('materia__nome', 'titulo')
+    lista = _visiveis(Atividade.objects.select_related('materia'), request).order_by('materia__nome', 'titulo')
     status = {}
     aluno = _aluno(request)
     if aluno and not eh_professor(request.user):
@@ -152,16 +185,30 @@ def atividade_nova(request):
         atividade = form.save(commit=False)
         atividade.criado_por = _professor(request)
         atividade.save()
+        form.save_m2m()
         messages.success(request, 'Atividade criada. Agora adicione as questões, se quiser.')
         return redirect('atividade', pk=atividade.pk)
     return render(request, 'atividades/formulario.html', {
         'form': form, 'titulo': 'Nova atividade', 'voltar': 'atividades'})
 
 
+@professor_required
+def atividade_atribuir(request, pk):
+    atividade = get_object_or_404(Atividade, pk=pk)
+    form = AtribuirAtividadeForm(request.POST if request.method == 'POST' else None, instance=atividade)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Alunos da atividade atualizados.')
+        return redirect('atividade', pk=pk)
+    return render(request, 'atividades/formulario.html', {
+        'form': form, 'titulo': f'Quem recebe: {atividade.titulo}', 'voltar': 'atividade', 'voltar_pk': pk})
+
+
 @login_required
 def atividade_detalhe(request, pk):
-    atividade = get_object_or_404(Atividade.objects.select_related('materia'), pk=pk)
-    ctx = {'atividade': atividade, 'questoes': atividade.questoes.all()}
+    atividade = get_object_or_404(_visiveis(Atividade.objects.select_related('materia'), request), pk=pk)
+    ctx = {'atividade': atividade, 'questoes': atividade.questoes.all(),
+           'alunos_atividade': atividade.alunos.order_by('nome')}
     if eh_professor(request.user):
         ctx['entregas'] = atividade.progressos.select_related('aluno').exclude(status='nao_iniciado')
         return render(request, 'atividades/atividade_professor.html', ctx)
@@ -193,7 +240,7 @@ def questao_nova(request, pk):
 @login_required
 def responder(request, pk):
     """O aluno envia as respostas. Objetivas são corrigidas na hora; abertas vão para o professor."""
-    atividade = get_object_or_404(Atividade, pk=pk)
+    atividade = get_object_or_404(_visiveis(Atividade.objects.all(), request), pk=pk)
     aluno = _aluno(request)
     if request.method != 'POST' or not aluno:
         return redirect('atividade', pk=pk)
@@ -262,14 +309,17 @@ def notas(request):
 
 @professor_required
 def alunos(request):
-    return render(request, 'atividades/alunos.html', {'alunos': Aluno.objects.all().order_by('nome')})
+    return render(request, 'atividades/alunos.html', {'alunos': Aluno.objects.filter(usuario__isnull=False).order_by('nome')})
 
 
 @professor_required
 def aluno_detalhe(request, pk):
     aluno = get_object_or_404(Aluno, pk=pk)
     progressos = aluno.progressos.exclude(status='nao_iniciado').select_related('atividade__materia')
-    return render(request, 'atividades/aluno_detalhe.html', {'aluno': aluno, 'progressos': progressos})
+    return render(request, 'atividades/aluno_detalhe.html', {
+        'aluno': aluno, 'progressos': progressos,
+        'aulas_aluno': aluno.aulas_atribuidas.select_related('materia'),
+        'atividades_aluno': aluno.atividades_atribuidas.select_related('materia')})
 
 
 @professor_required

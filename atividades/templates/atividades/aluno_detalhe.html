@@ -5,6 +5,16 @@
 <h1>{{ aluno.nome }}</h1>
 {% if aluno.estilo_aprendizagem %}<p class="suave">Estilo de aprendizagem: {{ aluno.get_estilo_aprendizagem_display }}</p>{% endif %}
 {% if aluno.preferencias %}<p class="suave">Preferências: {{ aluno.preferencias }}</p>{% endif %}
+<h2>Aulas liberadas</h2>
+<ul class="lista-simples">
+    {% for a in aulas_aluno %}<li><a href="{% url 'aula' a.pk %}">{{ a.titulo }}</a> <span class="suave">({{ a.materia.nome }})</span></li>
+    {% empty %}<li>Nenhuma aula liberada.</li>{% endfor %}
+</ul>
+<h2>Atividades liberadas</h2>
+<ul class="lista-simples">
+    {% for a in atividades_aluno %}<li><a href="{% url 'atividade' a.pk %}">{{ a.titulo }}</a> <span class="suave">({{ a.materia.nome }})</span></li>
+    {% empty %}<li>Nenhuma atividade liberada.</li>{% endfor %}
+</ul>
 <h2>Notas</h2>
 {% include "atividades/_tabela_notas.html" with legenda="Notas do aluno" %}
 {% endblock %}

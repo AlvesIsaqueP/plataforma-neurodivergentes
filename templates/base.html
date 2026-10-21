@@ -63,8 +63,9 @@
                 {% if papel == 'professor' %}
                 <li><a href="{% url 'alunos' %}" {% if n == 'alunos' or n == 'aluno' %}aria-current="page"{% endif %}>Alunos</a></li>
                 {% endif %}
-                <li><a href="{% url 'materias' %}" {% if n == 'materias' or n == 'materia' or n == 'materia_nova' or n == 'aula_nova' %}aria-current="page"{% endif %}>Matérias</a></li>
-                <li><a href="{% url 'atividades' %}" {% if n == 'atividades' or n == 'atividade' or n == 'atividade_nova' or n == 'questao_nova' %}aria-current="page"{% endif %}>Atividades</a></li>
+                <li><a href="{% url 'materias' %}" {% if n == 'materias' or n == 'materia' or n == 'materia_nova' %}aria-current="page"{% endif %}>Matérias</a></li>
+                <li><a href="{% url 'aulas' %}" {% if n == 'aulas' or n == 'aula' or n == 'aula_nova' or n == 'aula_atribuir' %}aria-current="page"{% endif %}>Aulas</a></li>
+                <li><a href="{% url 'atividades' %}" {% if n == 'atividades' or n == 'atividade' or n == 'atividade_nova' or n == 'questao_nova' or n == 'atividade_atribuir' %}aria-current="page"{% endif %}>Atividades</a></li>
                 <li><a href="{% url 'notas' %}" {% if n == 'notas' or n == 'corrigir' %}aria-current="page"{% endif %}>Notas</a></li>
             </ul>
         </nav>

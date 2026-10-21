@@ -1,4 +1,5 @@
 from django import forms
+from alunos.models import Aluno
 from .models import Materia, Aula, Atividade, Questao
 
 
@@ -8,11 +9,48 @@ class MateriaForm(forms.ModelForm):
         fields = ['nome']
 
 
-class AulaForm(forms.ModelForm):
+class _AlunosMixin:
+    """Lista de alunos (só os que têm login) com caixas de seleção."""
+
+    def _configurar_alunos(self):
+        campo = self.fields['alunos']
+        campo.widget = forms.CheckboxSelectMultiple()
+        campo.queryset = Aluno.objects.filter(usuario__isnull=False).order_by('nome')
+        campo.required = False
+
+
+class AulaForm(_AlunosMixin, forms.ModelForm):
     class Meta:
         model = Aula
-        fields = ['titulo', 'descricao', 'link']
+        fields = ['materia', 'titulo', 'descricao', 'link', 'alunos']
         widgets = {'descricao': forms.Textarea(attrs={'rows': 5})}
+        labels = {'alunos': 'Quem vai receber esta aula'}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._configurar_alunos()
+
+
+class AtribuirAulaForm(_AlunosMixin, forms.ModelForm):
+    class Meta:
+        model = Aula
+        fields = ['alunos']
+        labels = {'alunos': 'Quem vai receber esta aula'}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._configurar_alunos()
+
+
+class AtribuirAtividadeForm(_AlunosMixin, forms.ModelForm):
+    class Meta:
+        model = Atividade
+        fields = ['alunos']
+        labels = {'alunos': 'Quem vai receber esta atividade'}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._configurar_alunos()
 
 
 class SlidesForm(forms.Form):
@@ -25,11 +63,16 @@ class SlidesForm(forms.Form):
         return arquivo
 
 
-class AtividadeForm(forms.ModelForm):
+class AtividadeForm(_AlunosMixin, forms.ModelForm):
     class Meta:
         model = Atividade
-        fields = ['titulo', 'materia', 'tipo', 'descricao', 'nivel_dificuldade', 'arquivo_ou_url']
+        fields = ['titulo', 'materia', 'tipo', 'descricao', 'nivel_dificuldade', 'arquivo_ou_url', 'alunos']
         widgets = {'descricao': forms.Textarea(attrs={'rows': 4})}
+        labels = {'alunos': 'Quem vai receber esta atividade'}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._configurar_alunos()
 
 
 class QuestaoForm(forms.ModelForm):

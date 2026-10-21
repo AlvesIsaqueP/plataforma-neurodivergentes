@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Aulas{% endblock %}
+{% block conteudo %}
+<h1>Aulas</h1>
+<p class="suave">{% if papel == 'professor' %}Todas as aulas cadastradas.{% else %}Aulas liberadas para você.{% endif %}</p>
+{% if papel == 'professor' %}<p><a class="botao botao-link" href="{% url 'aula_nova' %}">Nova aula</a></p>{% endif %}
+<ul class="lista-atividades">
+    {% for aula in aulas %}
+    <li class="cartao">
+        <h2><a href="{% url 'aula' aula.pk %}">{{ aula.titulo }}</a></h2>
+        <p class="suave">{{ aula.materia.nome }}{% if aula.slides.exists %} · Com slides{% endif %}</p>
+    </li>
+    {% empty %}
+    <li class="cartao">{% if papel == 'professor' %}Nenhuma aula cadastrada ainda.{% else %}Seu professor ainda não liberou aulas para você.{% endif %}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

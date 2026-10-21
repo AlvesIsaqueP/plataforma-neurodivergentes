@@ -5,7 +5,7 @@
 <h1>{{ materia.nome }}</h1>
 
 <h2>Aulas</h2>
-{% if papel == 'professor' %}<p><a class="botao botao-link" href="{% url 'aula_nova' materia.pk %}">Adicionar aula</a></p>{% endif %}
+{% if papel == 'professor' %}<p><a class="botao botao-link" href="{% url 'aula_nova' %}?materia={{ materia.pk }}">Adicionar aula</a></p>{% endif %}
 <ul class="lista-atividades">
     {% for aula in aulas %}
     <li class="cartao">
@@ -15,7 +15,7 @@
         {% if aula.link %}<a class="botao botao-link" href="{{ aula.link }}" target="_blank" rel="noopener">Abrir material<span class="sr-only"> (abre em nova aba)</span></a>{% endif %}
     </li>
     {% empty %}
-    <li class="cartao">Nenhuma aula cadastrada nesta matéria ainda.</li>
+    <li class="cartao">{% if papel == 'professor' %}Nenhuma aula cadastrada nesta matéria ainda.{% else %}Nenhuma aula foi liberada para você nesta matéria.{% endif %}</li>
     {% endfor %}
 </ul>
 
@@ -24,7 +24,7 @@
     {% for a in atividades %}
     <li class="cartao"><a href="{% url 'atividade' a.pk %}">{{ a.titulo }}</a> <span class="suave">({{ a.get_tipo_display }})</span></li>
     {% empty %}
-    <li class="cartao">Nenhuma atividade nesta matéria ainda.</li>
+    <li class="cartao">{% if papel == 'professor' %}Nenhuma atividade nesta matéria ainda.{% else %}Nenhuma atividade foi liberada para você nesta matéria.{% endif %}</li>
     {% endfor %}
 </ul>
 {% endblock %}

@@ -48,7 +48,7 @@ def converter_pdf(dados):
         return paginas
 
 
-def _requisicao(metodo, caminho_api, corpo=None, tipo=None):
+def _requisicao(metodo, caminho_api, corpo=None, tipo=None, tempo_limite=20):
     cabecalhos = {
         'Authorization': f'Bearer {settings.SUPABASE_SECRET_KEY}',
         'apikey': settings.SUPABASE_SECRET_KEY,
@@ -57,15 +57,15 @@ def _requisicao(metodo, caminho_api, corpo=None, tipo=None):
         cabecalhos['Content-Type'] = tipo
     req = urllib.request.Request(
         settings.SUPABASE_URL.rstrip('/') + caminho_api, data=corpo, method=metodo, headers=cabecalhos)
-    with urllib.request.urlopen(req, timeout=20) as resp:
+    with urllib.request.urlopen(req, timeout=tempo_limite) as resp:
         return resp.read()
 
 
-def enviar(caminho, conteudo):
+def enviar(caminho, conteudo, tipo='image/jpeg', tempo_limite=20):
     _requisicao(
         'POST',
         f"/storage/v1/object/{settings.SUPABASE_BUCKET}/{urllib.parse.quote(caminho)}",
-        conteudo, 'image/jpeg')
+        conteudo, tipo, tempo_limite)
 
 
 def apagar(caminhos):

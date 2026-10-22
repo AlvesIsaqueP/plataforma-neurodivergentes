@@ -11,7 +11,7 @@
     {% for aula in aulas %}
     <li class="cartao-item">
         <h3><a href="{% url 'aula' aula.pk %}">{{ aula.titulo }}</a></h3>
-        <p class="suave">{% if aula.slides.exists %}Com slides{% else %}Aula{% endif %}</p>
+        <p class="suave">{% if aula.tem_video and aula.slides.exists %}Com vídeo e slides{% elif aula.tem_video %}Com vídeo{% elif aula.slides.exists %}Com slides{% else %}Aula{% endif %}</p>
     </li>
     {% empty %}
     <li class="cartao-vazio">{% if papel == 'professor' %}Nenhuma aula cadastrada nesta matéria ainda.{% else %}Nenhuma aula foi liberada para você nesta matéria.{% endif %}</li>

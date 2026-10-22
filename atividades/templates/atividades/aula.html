@@ -9,6 +9,20 @@
 {% if aula.descricao %}<p>{{ aula.descricao|linebreaksbr }}</p>{% endif %}
 {% if aula.link %}<p><a class="botao botao-link" href="{{ aula.link }}" target="_blank" rel="noopener">Abrir material<span class="sr-only"> (abre em nova aba)</span></a></p>{% endif %}
 
+{% if aula.tem_video %}
+<section class="video-aula" aria-label="Vídeo da aula">
+    <div class="video-quadro">
+        {% if aula.youtube_id %}
+        <iframe src="https://www.youtube-nocookie.com/embed/{{ aula.youtube_id }}" title="Vídeo da aula: {{ aula.titulo }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        {% else %}
+        <video controls preload="metadata" src="{{ aula.video_url }}">
+            Seu navegador não consegue reproduzir este vídeo. <a href="{{ aula.video_url }}">Abrir o vídeo</a>.
+        </video>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
 {% if slides %}
 <section class="slides" id="slides" aria-label="Slides da aula" data-total="{{ slides|length }}">
     <div class="slides-palco" id="slides-palco">
@@ -46,6 +60,29 @@
     <p class="suave">Nenhum aluno recebeu esta aula ainda.</p>
     {% endif %}
     <p><a class="botao botao-link" href="{% url 'aula_atribuir' aula.pk %}">Escolher alunos</a></p>
+</section>
+
+<section class="cartao painel" aria-labelledby="titulo-video">
+    <h2 id="titulo-video">{% if aula.tem_video %}Trocar o vídeo{% else %}Vídeo da aula{% endif %}</h2>
+    <p class="suave">Cole um link do YouTube <strong>ou</strong> envie um arquivo MP4/WebM de até 50 MB.</p>
+    <form method="post" action="{% url 'aula_video' aula.pk %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="campo">
+            <label for="id_youtube">Link do YouTube</label>
+            <input type="text" name="youtube" id="id_youtube" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+        <div class="campo">
+            <label for="id_arquivo_video">ou arquivo de vídeo</label>
+            <input type="file" name="arquivo" id="id_arquivo_video" accept="video/mp4,video/webm,.mp4,.webm">
+        </div>
+        <button type="submit" class="botao botao-auto">Salvar vídeo</button>
+    </form>
+    {% if aula.tem_video %}
+    <form method="post" action="{% url 'aula_video_remover' aula.pk %}" class="form-remover">
+        {% csrf_token %}
+        <button type="submit" class="botao-contorno">Remover vídeo</button>
+    </form>
+    {% endif %}
 </section>
 
 <section class="cartao painel" aria-labelledby="titulo-envio">

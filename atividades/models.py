@@ -17,6 +17,17 @@ class Aula(models.Model):
     link = models.CharField(max_length=500, blank=True, help_text="Link de vídeo, slide ou material (opcional)")
     criado_por = models.ForeignKey(Professor, on_delete=models.SET_NULL, null=True, blank=True, related_name='aulas')
     alunos = models.ManyToManyField(Aluno, blank=True, related_name='aulas_atribuidas')
+    youtube_id = models.CharField(max_length=11, blank=True)
+    video_caminho = models.CharField(max_length=300, blank=True)
+
+    @property
+    def tem_video(self):
+        return bool(self.youtube_id or self.video_caminho)
+
+    @property
+    def video_url(self):
+        from .slides import url_publica
+        return url_publica(self.video_caminho) if self.video_caminho else ''
     criado_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:

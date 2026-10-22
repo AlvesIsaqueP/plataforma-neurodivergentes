@@ -63,6 +63,23 @@ class SlidesForm(forms.Form):
         return arquivo
 
 
+class VideoForm(forms.Form):
+    youtube = forms.CharField(label='Link do YouTube', required=False)
+    arquivo = forms.FileField(label='ou arquivo de vídeo (MP4 ou WebM, até 50 MB)', required=False)
+
+    def clean(self):
+        dados = super().clean()
+        link, arquivo = (dados.get('youtube') or '').strip(), dados.get('arquivo')
+        if bool(link) == bool(arquivo):
+            raise forms.ValidationError('Informe um link do YouTube ou escolha um arquivo, só um dos dois.')
+        if link:
+            from .videos import extrair_youtube_id
+            dados['youtube_id'] = extrair_youtube_id(link)
+            if not dados['youtube_id']:
+                self.add_error('youtube', 'Esse não parece um link válido do YouTube.')
+        return dados
+
+
 class AtividadeForm(_AlunosMixin, forms.ModelForm):
     class Meta:
         model = Atividade

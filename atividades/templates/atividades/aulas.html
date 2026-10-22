@@ -8,7 +8,7 @@
     {% for aula in aulas %}
     <li class="cartao-item">
         <h2><a href="{% url 'aula' aula.pk %}">{{ aula.titulo }}</a></h2>
-        <p class="suave">{{ aula.materia.nome }}{% if aula.slides.exists %} · Com slides{% endif %}</p>
+        <p class="suave">{{ aula.materia.nome }}{% if aula.tem_video %} · Com vídeo{% endif %}{% if aula.slides.exists %} · Com slides{% endif %}</p>
     </li>
     {% empty %}
     <li class="cartao-vazio">{% if papel == 'professor' %}Nenhuma aula cadastrada ainda.{% else %}Seu professor ainda não liberou aulas para você.{% endif %}</li>

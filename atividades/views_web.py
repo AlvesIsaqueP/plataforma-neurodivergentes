@@ -9,8 +9,9 @@ from django.utils import timezone
 from alunos.models import Aluno
 from usuarios.permissions import eh_professor, professor_required
 from . import slides as servico_slides
+from . import videos as servico_videos
 from .forms import (MateriaForm, AulaForm, AtividadeForm, QuestaoForm, CorrecaoForm, SlidesForm,
-                    AtribuirAulaForm, AtribuirAtividadeForm)
+                    AtribuirAulaForm, AtribuirAtividadeForm, VideoForm)
 from .models import Materia, Aula, SlideAula, Atividade, Questao, Progresso, Resposta
 
 
@@ -124,7 +125,7 @@ def aula_atribuir(request, pk):
 def aula_detalhe(request, pk):
     aula = get_object_or_404(_visiveis(Aula.objects.select_related('materia'), request), pk=pk)
     return render(request, 'atividades/aula.html', {
-        'aula': aula, 'slides': list(aula.slides.all()), 'form_slides': SlidesForm(),
+        'aula': aula, 'slides': list(aula.slides.all()), 'form_slides': SlidesForm(), 'form_video': VideoForm(),
         'alunos_aula': aula.alunos.order_by('nome')})
 
 
@@ -151,6 +152,45 @@ def aula_slides(request, pk):
             [SlideAula(aula=aula, numero=n, caminho=c, texto=t) for n, c, t in novos])
     servico_slides.apagar(antigos)
     messages.success(request, f'{len(novos)} slides enviados.')
+    return redirect('aula', pk=pk)
+
+
+@professor_required
+def aula_video(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method != 'POST':
+        return redirect('aula', pk=pk)
+    form = VideoForm(request.POST, request.FILES)
+    if not form.is_valid():
+        for lista in form.errors.values():
+            for erro in lista:
+                messages.error(request, erro)
+        return redirect('aula', pk=pk)
+    antigo = aula.video_caminho
+    if form.cleaned_data.get('youtube_id'):
+        aula.youtube_id, aula.video_caminho = form.cleaned_data['youtube_id'], ''
+    else:
+        try:
+            caminho = servico_videos.enviar_video(aula.pk, form.cleaned_data['arquivo'])
+        except servico_slides.ErroSlides as erro:
+            messages.error(request, str(erro))
+            return redirect('aula', pk=pk)
+        aula.youtube_id, aula.video_caminho = '', caminho
+    aula.save()
+    servico_slides.apagar([antigo] if antigo and antigo != aula.video_caminho else [])
+    messages.success(request, 'Vídeo da aula salvo.')
+    return redirect('aula', pk=pk)
+
+
+@professor_required
+def aula_video_remover(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method == 'POST':
+        antigo = aula.video_caminho
+        aula.youtube_id, aula.video_caminho = '', ''
+        aula.save()
+        servico_slides.apagar([antigo] if antigo else [])
+        messages.success(request, 'Vídeo removido.')
     return redirect('aula', pk=pk)
 
 
@@ -345,7 +385,10 @@ def corrigir(request, pk):
 # ---------- Exclusões ----------
 
 def _caminhos_slides(aulas):
-    return list(SlideAula.objects.filter(aula__in=aulas).values_list('caminho', flat=True))
+    """Imagens dos slides e arquivos de vídeo das aulas, para apagar do armazenamento."""
+    caminhos = list(SlideAula.objects.filter(aula__in=aulas).values_list('caminho', flat=True))
+    caminhos += [c for c in aulas.values_list('video_caminho', flat=True) if c]
+    return caminhos
 
 
 def _confirmar(request, titulo, avisos, cancelar):
@@ -372,7 +415,7 @@ def materia_excluir(request, pk):
 def aula_excluir(request, pk):
     aula = get_object_or_404(Aula, pk=pk)
     if request.method == 'POST':
-        caminhos = list(aula.slides.values_list('caminho', flat=True))
+        caminhos = _caminhos_slides(Aula.objects.filter(pk=aula.pk))
         materia_pk, titulo = aula.materia_id, aula.titulo
         aula.delete()
         servico_slides.apagar(caminhos)

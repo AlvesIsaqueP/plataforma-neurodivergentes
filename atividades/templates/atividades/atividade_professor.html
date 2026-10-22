@@ -25,9 +25,18 @@
     <li class="item-simples">
         <div>
             <p class="item-titulo">{{ q.enunciado }}</p>
-            <p class="suave">{{ q.get_tipo_resposta_display }}{% if q.resposta_correta %} · Resposta correta: {{ q.resposta_correta }}{% endif %}</p>
+            {% if q.tipo_resposta == 'multipla_escolha' %}
+            <ul class="alternativas">{% for letra, texto in q.alternativas %}<li>{{ letra }}) {{ texto }}</li>{% endfor %}</ul>
+            {% endif %}
+            {% if q.afirmativas %}
+            <ul class="alternativas">{% for letra, texto, g in q.afirmativas %}<li>{{ letra }}) {{ texto }} — <strong>{% if g == 'V' %}Verdadeiro{% else %}Falso{% endif %}</strong></li>{% endfor %}</ul>
+            {% endif %}
+            <p class="suave">{{ q.get_tipo_resposta_display }} · vale {{ q.peso|floatformat:"-1" }} ponto{{ q.peso|pluralize }}{% if q.resposta_correta and not q.afirmativas %} · Resposta correta: {% if q.letra_correta %}{{ q.letra_correta }}) {% endif %}{{ q.resposta_correta }}{% endif %}</p>
         </div>
-        <a class="botao-perigo" href="{% url 'questao_excluir' q.pk %}">Excluir<span class="sr-only"> questão: {{ q.enunciado|truncatechars:40 }}</span></a>
+        <div class="acoes-item">
+            <a class="botao-pequeno" href="{% url 'questao_editar' q.pk %}">Editar<span class="sr-only"> questão: {{ q.enunciado|truncatechars:40 }}</span></a>
+            <a class="botao-perigo" href="{% url 'questao_excluir' q.pk %}">Excluir<span class="sr-only"> questão: {{ q.enunciado|truncatechars:40 }}</span></a>
+        </div>
     </li>
     {% empty %}
     <li class="cartao-vazio">Nenhuma questão ainda.</li>

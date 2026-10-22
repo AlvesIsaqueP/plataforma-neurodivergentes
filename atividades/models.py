@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from usuarios.models import Professor
 from alunos.models import Aluno
@@ -90,6 +91,43 @@ class Questao(models.Model):
     tipo_resposta = models.CharField(max_length=20, choices=TIPOS_RESPOSTA)
     opcoes = models.JSONField(blank=True, null=True)
     resposta_correta = models.CharField(max_length=300, blank=True)
+    peso = models.FloatField(default=1, validators=[MinValueValidator(0.1)], help_text="Pontos que a questão vale")
+
+    LETRAS = 'ABCDEFGHIJ'
+
+    @property
+    def alternativas(self):
+        """Lista de (letra, texto). Verdadeiro/Falso não usa letras."""
+        opcoes = self.opcoes or []
+        if self.tipo_resposta == 'multipla_escolha':
+            return [(self.LETRAS[i], t) for i, t in enumerate(opcoes[:len(self.LETRAS)])]
+        return [('', t) for t in opcoes]
+
+    @property
+    def letra_correta(self):
+        for letra, texto in self.alternativas:
+            if texto == self.resposta_correta:
+                return letra
+        return ''
+
+    @property
+    def afirmativas(self):
+        """Verdadeiro/Falso em lista: [(letra, texto, 'V' ou 'F')]. Vazio nas demais (e no V/F antigo, de uma só afirmação)."""
+        if self.tipo_resposta != 'verdadeiro_falso' or self.resposta_correta in ('', 'Verdadeiro', 'Falso'):
+            return []
+        gab = self.resposta_correta.split(',')
+        return [(self.LETRAS[i], t, gab[i] if i < len(gab) else '')
+                for i, t in enumerate((self.opcoes or [])[:len(self.LETRAS)])]
+
+    def pontuar(self, texto):
+        """Correção automática: devolve (correta, pontos). Em V/F por itens, a nota é proporcional aos acertos."""
+        itens = self.afirmativas
+        if itens:
+            marcadas = texto.split(',')
+            acertos = sum(1 for i, (_, _, g) in enumerate(itens) if i < len(marcadas) and marcadas[i] == g)
+            return acertos == len(itens), round(self.peso * acertos / len(itens), 2)
+        correta = texto == self.resposta_correta
+        return correta, (self.peso if correta else 0)
 
     def __str__(self):
         return f"Questão de {self.atividade.titulo}"
@@ -114,6 +152,17 @@ class Progresso(models.Model):
     class Meta:
         unique_together = ('aluno', 'atividade')
 
+    def calcular_nota(self):
+        """Nota de 0 a 10 somando quiz e questões abertas; None se falta corrigir algo."""
+        respostas = list(self.respostas.select_related('questao'))
+        if not respostas:
+            return None
+        pontos = [r.pontos_efetivos for r in respostas]
+        if any(p is None for p in pontos):
+            return None
+        total = sum(r.questao.peso for r in respostas)
+        return round(10 * sum(pontos) / total, 1) if total else None
+
     def __str__(self):
         return f"{self.aluno.nome} - {self.atividade.titulo}"
 
@@ -123,6 +172,27 @@ class Resposta(models.Model):
     questao = models.ForeignKey(Questao, on_delete=models.CASCADE, related_name='respostas')
     texto = models.TextField()
     correta = models.BooleanField(null=True, blank=True)
+    pontos = models.FloatField(null=True, blank=True)
+
+    @property
+    def itens(self):
+        """V/F por itens: [(letra, texto, marcada, certa, acertou)]."""
+        marcadas = self.texto.split(',')
+        nomes = {'V': 'Verdadeiro', 'F': 'Falso'}
+        return [(l, t, nomes.get(marcadas[i] if i < len(marcadas) else '', '—'), nomes.get(g, g),
+                 i < len(marcadas) and marcadas[i] == g)
+                for i, (l, t, g) in enumerate(self.questao.afirmativas)]
+
+    @property
+    def pontos_efetivos(self):
+        """Pontos ganhos; None enquanto uma questão aberta não foi corrigida."""
+        if self.pontos is not None:
+            return self.pontos
+        if self.correta is True:
+            return self.questao.peso
+        if self.correta is False:
+            return 0
+        return None
 
     class Meta:
         unique_together = ('progresso', 'questao')

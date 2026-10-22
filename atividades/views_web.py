@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
+from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -219,18 +220,31 @@ def atividades(request):
     return render(request, 'atividades/atividades.html', {'atividades': lista})
 
 
+QuestaoFormSet = modelformset_factory(Questao, form=QuestaoForm, extra=1, can_delete=False)
+
+
 @professor_required
 def atividade_nova(request):
-    form = AtividadeForm(request.POST or None, initial={'materia': request.GET.get('materia')})
-    if request.method == 'POST' and form.is_valid():
-        atividade = form.save(commit=False)
-        atividade.criado_por = _professor(request)
-        atividade.save()
-        form.save_m2m()
-        messages.success(request, 'Atividade criada. Agora adicione as questões, se quiser.')
+    enviado = request.method == 'POST'
+    form = AtividadeForm(request.POST if enviado else None, initial={'materia': request.GET.get('materia')})
+    formset = QuestaoFormSet(request.POST if enviado else None, queryset=Questao.objects.none(), prefix='q')
+    if enviado and form.is_valid() and formset.is_valid():
+        with transaction.atomic():
+            atividade = form.save(commit=False)
+            atividade.criado_por = _professor(request)
+            atividade.save()
+            form.save_m2m()
+            total = 0
+            for f in formset:
+                if f.has_changed():
+                    questao = f.save(commit=False)
+                    questao.atividade = atividade
+                    questao.save()
+                    total += 1
+        messages.success(request, f'Atividade criada com {total} questão(ões).' if total
+                         else 'Atividade criada. Você pode adicionar questões quando quiser.')
         return redirect('atividade', pk=atividade.pk)
-    return render(request, 'atividades/formulario.html', {
-        'form': form, 'titulo': 'Nova atividade', 'voltar': 'atividades'})
+    return render(request, 'atividades/atividade_nova.html', {'form': form, 'formset': formset})
 
 
 @professor_required
@@ -278,9 +292,25 @@ def questao_nova(request, pk):
         'voltar': 'atividade', 'voltar_pk': atividade.pk})
 
 
+@professor_required
+def questao_editar(request, pk):
+    questao = get_object_or_404(Questao, pk=pk)
+    form = QuestaoForm(request.POST if request.method == 'POST' else None, instance=questao)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Questão atualizada.')
+        return redirect('atividade', pk=questao.atividade_id)
+    total = questao.respostas.count()
+    aviso = (f'{total} aluno(s) já responderam. Mudar alternativas, resposta certa ou valor '
+             'não recalcula as notas que já foram dadas.') if total else ''
+    return render(request, 'atividades/formulario.html', {
+        'form': form, 'titulo': 'Editar questão', 'aviso': aviso,
+        'voltar': 'atividade', 'voltar_pk': questao.atividade_id})
+
+
 @login_required
 def responder(request, pk):
-    """O aluno envia as respostas. Objetivas são corrigidas na hora; abertas vão para o professor."""
+    """O aluno envia as respostas. O quiz é corrigido na hora; questões abertas vão para o professor."""
     atividade = get_object_or_404(_visiveis(Atividade.objects.all(), request), pk=pk)
     aluno = _aluno(request)
     if request.method != 'POST' or not aluno:
@@ -295,7 +325,11 @@ def responder(request, pk):
 
         respostas, faltando = [], False
         for q in questoes:
-            texto = request.POST.get(f'q_{q.pk}', '').strip()
+            if q.afirmativas:
+                marcadas = [request.POST.get(f'q_{q.pk}_{l}', '') for l, _, _ in q.afirmativas]
+                texto = ','.join(marcadas) if all(m in ('V', 'F') for m in marcadas) else ''
+            else:
+                texto = request.POST.get(f'q_{q.pk}', '').strip()
             if not texto:
                 faltando = True
             respostas.append((q, texto))
@@ -304,18 +338,15 @@ def responder(request, pk):
             return redirect('atividade', pk=pk)
 
         agora = timezone.now()
-        objetivas = acertos = 0
         tem_aberta = False
         for q, texto in respostas:
             if q.tipo_resposta == 'aberta':
                 tem_aberta = True
-                correta = None
+                correta, pontos = None, None
             else:
-                objetivas += 1
-                correta = texto == q.resposta_correta
-                acertos += 1 if correta else 0
+                correta, pontos = q.pontuar(texto)
             Resposta.objects.update_or_create(progresso=progresso, questao=q,
-                                              defaults={'texto': texto, 'correta': correta})
+                                              defaults={'texto': texto, 'correta': correta, 'pontos': pontos})
         progresso.enviado_em = agora
         if tem_aberta:
             progresso.status = 'aguardando_correcao'
@@ -323,11 +354,11 @@ def responder(request, pk):
         else:
             progresso.status = 'concluido'
             progresso.data_conclusao = agora
-            progresso.pontuacao = round(10 * acertos / objetivas, 1) if objetivas else None
+            progresso.pontuacao = progresso.calcular_nota()
         progresso.save()
 
     if progresso.status == 'aguardando_correcao':
-        messages.success(request, 'Respostas enviadas. O professor vai corrigir as questões abertas.')
+        messages.success(request, 'Respostas enviadas. O professor vai corrigir as questões escritas.')
     else:
         messages.success(request, 'Respostas enviadas.')
     return redirect('atividade', pk=pk)
@@ -368,18 +399,30 @@ def corrigir(request, pk):
     progresso = get_object_or_404(Progresso.objects.select_related('aluno', 'atividade'), pk=pk)
     if progresso.status == 'nao_iniciado':
         return redirect('notas')
-    respostas = progresso.respostas.select_related('questao')
-    form = CorrecaoForm(request.POST or None, initial={'nota': progresso.pontuacao, 'comentario': progresso.comentario})
+    respostas = list(progresso.respostas.select_related('questao').order_by('questao_id'))
+    abertas = [r for r in respostas if r.questao.tipo_resposta == 'aberta']
+    form = CorrecaoForm(abertas, request.POST if request.method == 'POST' else None,
+                        initial={'comentario': progresso.comentario})
     if request.method == 'POST' and form.is_valid():
-        progresso.pontuacao = float(form.cleaned_data['nota'])
-        progresso.comentario = form.cleaned_data['comentario']
-        progresso.status = 'concluido'
-        progresso.data_conclusao = timezone.now()
-        progresso.save()
+        with transaction.atomic():
+            for r in abertas:
+                r.pontos = float(form.cleaned_data[f'nota_{r.pk}'])
+                r.save(update_fields=['pontos'])
+            progresso.comentario = form.cleaned_data['comentario']
+            progresso.pontuacao = progresso.calcular_nota()
+            progresso.status = 'concluido'
+            progresso.data_conclusao = progresso.data_conclusao or timezone.now()
+            progresso.save()
         messages.success(request, f'Correção de {progresso.aluno.nome} salva.')
         return redirect('notas')
+    campos = {f'nota_{r.pk}': form[f'nota_{r.pk}'] for r in abertas}
+    for r in respostas:
+        r.campo_nota = campos.get(f'nota_{r.pk}')
+    objetivas = [r for r in respostas if r.questao.tipo_resposta != 'aberta']
     return render(request, 'atividades/corrigir.html', {
-        'progresso': progresso, 'respostas': respostas, 'form': form})
+        'progresso': progresso, 'respostas': respostas, 'form': form,
+        'pontos_quiz': sum(r.pontos_efetivos or 0 for r in objetivas),
+        'total_quiz': sum(r.questao.peso for r in objetivas), 'tem_quiz': bool(objetivas)})
 
 
 # ---------- Exclusões ----------

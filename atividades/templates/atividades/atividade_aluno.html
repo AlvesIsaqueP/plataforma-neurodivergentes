@@ -10,7 +10,7 @@
 {% endif %}
 
 {% if progresso and progresso.status == 'concluido' or progresso and progresso.status == 'aguardando_correcao' %}
-<section class="cartao" aria-labelledby="resultado">
+<section class="cartao painel painel-unico" aria-labelledby="resultado">
     <h2 id="resultado">Seu resultado</h2>
     <p>Situação: <strong>{{ progresso.get_status_display }}</strong></p>
     {% if progresso.pontuacao is not None %}<p>Nota: <strong>{{ progresso.pontuacao }}</strong></p>{% endif %}
@@ -18,13 +18,18 @@
 </section>
 {% if questoes %}
 <h2>Suas respostas</h2>
-<ol class="lista-atividades">
+<ol class="lista-itens">
     {% for q in questoes %}
-    <li class="cartao">
+    <li class="item-simples item-coluna">
         <p>{{ q.enunciado }}</p>
         {% for r in progresso.respostas.all %}{% if r.questao_id == q.pk %}
+        {% if q.afirmativas %}
+        <ul class="alternativas">{% for letra, texto, marcada, certa, acertou in r.itens %}<li>{{ letra }}) {{ texto }} — sua resposta: <strong>{{ marcada }}</strong> ({% if acertou %}certo{% else %}errado, o certo é {{ certa }}{% endif %})</li>{% endfor %}</ul>
+        <p class="suave">Nota da questão: {{ r.pontos|floatformat:"-2" }} de {{ q.peso|floatformat:"-1" }}</p>
+        {% else %}
         <p>Sua resposta: <strong>{{ r.texto }}</strong>
-            {% if r.correta is True %} — Correta{% elif r.correta is False %} — Incorreta (resposta certa: {{ q.resposta_correta }}){% else %} — Aguardando o professor{% endif %}</p>
+            {% if r.correta is True %} — Correta{% elif r.correta is False %} — Incorreta (resposta certa: {% if q.letra_correta %}{{ q.letra_correta }}) {% endif %}{{ q.resposta_correta }}){% elif r.pontos is not None %} — Nota da questão: {{ r.pontos|floatformat:"-1" }} de {{ q.peso|floatformat:"-1" }}{% else %} — Aguardando o professor{% endif %}</p>
+        {% endif %}
         {% endif %}{% endfor %}
     </li>
     {% endfor %}
@@ -35,19 +40,30 @@
 <form method="post" action="{% url 'responder' atividade.pk %}" class="formulario">
     {% csrf_token %}
     {% if questoes %}
-    <ol class="lista-atividades">
+    <ol class="lista-itens">
         {% for q in questoes %}
-        <li class="cartao">
+        <li class="item-simples item-coluna">
             {% if q.tipo_resposta == 'aberta' %}
             <div class="campo">
                 <label for="q_{{ q.pk }}">{{ q.enunciado }}</label>
                 <textarea name="q_{{ q.pk }}" id="q_{{ q.pk }}" rows="4" required></textarea>
             </div>
+            {% elif q.afirmativas %}
+            <fieldset class="campo">
+                <legend>{{ q.enunciado }} <span class="suave">(marque Verdadeiro ou Falso em cada alternativa)</span></legend>
+                {% for letra, texto, g in q.afirmativas %}
+                <div class="afirmativa">
+                    <p><strong>{{ letra }})</strong> {{ texto }}</p>
+                    <label class="opcao"><input type="radio" name="q_{{ q.pk }}_{{ letra }}" value="V" required> Verdadeiro</label>
+                    <label class="opcao"><input type="radio" name="q_{{ q.pk }}_{{ letra }}" value="F" required> Falso</label>
+                </div>
+                {% endfor %}
+            </fieldset>
             {% else %}
             <fieldset class="campo">
                 <legend>{{ q.enunciado }}</legend>
-                {% for op in q.opcoes %}
-                <label class="opcao"><input type="radio" name="q_{{ q.pk }}" value="{{ op }}" required> {{ op }}</label>
+                {% for letra, op in q.alternativas %}
+                <label class="opcao"><input type="radio" name="q_{{ q.pk }}" value="{{ op }}" required> {% if letra %}<strong>{{ letra }})</strong> {% endif %}{{ op }}</label>
                 {% endfor %}
             </fieldset>
             {% endif %}

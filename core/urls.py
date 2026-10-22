@@ -46,6 +46,7 @@ urlpatterns = [
     path('atividades/nova/', paginas.atividade_nova, name='atividade_nova'),
     path('atividades/<int:pk>/', paginas.atividade_detalhe, name='atividade'),
     path('atividades/<int:pk>/excluir/', paginas.atividade_excluir, name='atividade_excluir'),
+    path('questoes/<int:pk>/editar/', paginas.questao_editar, name='questao_editar'),
     path('questoes/<int:pk>/excluir/', paginas.questao_excluir, name='questao_excluir'),
     path('atividades/<int:pk>/atribuir/', paginas.atividade_atribuir, name='atividade_atribuir'),
     path('atividades/<int:pk>/questoes/nova/', paginas.questao_nova, name='questao_nova'),

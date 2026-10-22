@@ -1057,3 +1057,90 @@ fieldset.campo {
     height: 100%;
     border: 0;
 }
+
+/* ---------- Questões e correção ---------- */
+.alternativas {
+    list-style: none;
+    margin: 0.25rem 0 0.4rem;
+    padding: 0;
+}
+
+.alternativas li {
+    padding: 0.1rem 0;
+}
+
+.item-coluna {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+}
+
+.campo-nota {
+    max-width: 260px;
+    margin: 0.4rem 0 0;
+}
+
+.campo[hidden] {
+    display: none;
+}
+
+.item-simples fieldset.campo {
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.item-simples fieldset.campo legend {
+    font-weight: 600;
+    padding: 0;
+    margin-bottom: 0.25rem;
+}
+
+.acoes-item {
+    display: flex;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+/* ---------- Nova atividade com questões ---------- */
+.formulario-largo {
+    max-width: 760px;
+}
+
+.formulario-largo .painel {
+    margin-bottom: 1.5rem;
+}
+
+.secao-questoes h2 {
+    margin-bottom: 0.25rem;
+}
+
+.bloco-questao {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1.1rem 0.5rem;
+    background: var(--cartao);
+    border: var(--espessura) solid var(--borda);
+    border-radius: 10px;
+}
+
+.bloco-questao legend {
+    padding: 0 0.4rem;
+    font-weight: 600;
+}
+
+.bloco-questao .campo {
+    margin-bottom: 0.75rem;
+}
+
+.formulario-largo .botao-auto {
+    margin-top: 0.5rem;
+}
+
+.botao-pequeno:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.afirmativa { margin: .5rem 0; padding-left: .5rem; border-left: 3px solid var(--borda, #ccc); }
+.afirmativa p { margin: 0 0 .25rem; }
+.afirmativa .opcao { display: inline-flex; margin-right: 1rem; }

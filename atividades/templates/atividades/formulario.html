@@ -3,6 +3,7 @@
 {% block conteudo %}
 <p>{% if voltar_pk %}<a href="{% url voltar voltar_pk %}">← Voltar</a>{% else %}<a href="{% url voltar %}">← Voltar</a>{% endif %}</p>
 <h1>{{ titulo }}</h1>
+{% if aviso %}<p class="mensagem" role="status">{{ aviso }}</p>{% endif %}
 {% if form.errors %}<div class="alerta" role="alert">Há campos para corrigir. Veja as mensagens abaixo.</div>{% endif %}
 <form method="post" class="cartao formulario">
     {% csrf_token %}
@@ -14,4 +15,5 @@
 {% block scripts %}
 {% load static %}
 <script src="{% static 'js/marcar-todos.js' %}"></script>
+<script src="{% static 'js/questao-form.js' %}"></script>
 {% endblock %}

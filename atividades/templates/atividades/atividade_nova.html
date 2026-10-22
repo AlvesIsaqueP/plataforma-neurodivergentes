@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Nova atividade{% endblock %}
+{% block conteudo %}
+<p><a href="{% url 'atividades' %}">← Voltar</a></p>
+<h1>Nova atividade</h1>
+{% if form.errors or formset.errors or formset.non_form_errors %}<div class="alerta" role="alert">Há campos para corrigir. Veja as mensagens abaixo.</div>{% endif %}
+
+<form method="post" class="formulario-largo">
+    {% csrf_token %}
+    <section class="cartao painel" aria-labelledby="titulo-dados">
+        <h2 id="titulo-dados">Dados da atividade</h2>
+        {% include "atividades/_campos.html" %}
+    </section>
+
+    <section aria-labelledby="titulo-questoes" class="secao-questoes">
+        <h2 id="titulo-questoes">Questões</h2>
+        <p class="suave">Opcional. Monte o quiz aqui mesmo: múltipla escolha, verdadeiro/falso ou resposta escrita. Blocos deixados em branco são ignorados.</p>
+        {{ formset.management_form }}
+        {% for erro in formset.non_form_errors %}<p class="erro-campo" role="alert">{{ erro }}</p>{% endfor %}
+        <div id="lista-questoes">
+            {% for f in formset %}
+            <fieldset class="bloco-questao">
+                <legend>Questão <span class="num">{{ forloop.counter }}</span></legend>
+                {% include "atividades/_campos.html" with form=f %}
+            </fieldset>
+            {% endfor %}
+        </div>
+        <template id="modelo-questao">
+            <fieldset class="bloco-questao">
+                <legend>Questão <span class="num"></span></legend>
+                {% include "atividades/_campos.html" with form=formset.empty_form %}
+            </fieldset>
+        </template>
+        <p class="acoes-pagina">
+            <button type="button" class="botao-pequeno" id="adicionar-questao">+ Adicionar outra questão</button>
+            <button type="button" class="botao-pequeno" id="remover-questao">Remover a última</button>
+        </p>
+    </section>
+
+    <button type="submit" class="botao botao-auto">Salvar atividade</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/marcar-todos.js' %}"></script>
+<script src="{% static 'js/questao-form.js' %}"></script>
+<script src="{% static 'js/questoes-dinamicas.js' %}"></script>
+{% endblock %}

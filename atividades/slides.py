@@ -26,7 +26,7 @@ def url_publica(caminho):
     return f"{base}/storage/v1/object/public/{settings.SUPABASE_BUCKET}/{urllib.parse.quote(caminho)}"
 
 
-def converter_pdf(dados):
+def converter_pdf(dados, dpi=110):
     """Devolve uma lista de (bytes_jpeg, texto) com uma entrada por página."""
     if len(dados) > TAMANHO_MAXIMO:
         raise ErroSlides('O PDF é maior que 20 MB.')
@@ -43,7 +43,7 @@ def converter_pdf(dados):
             raise ErroSlides(f'O PDF tem {doc.page_count} páginas. O máximo é {PAGINAS_MAXIMAS}.')
         paginas = []
         for pagina in doc:
-            imagem = pagina.get_pixmap(dpi=110).tobytes('jpeg', jpg_quality=80)
+            imagem = pagina.get_pixmap(dpi=dpi).tobytes('jpeg', jpg_quality=80)
             paginas.append((imagem, pagina.get_text().strip()))
         return paginas
 
@@ -79,12 +79,12 @@ def apagar(caminhos):
         pass
 
 
-def enviar_pdf(aula_id, dados):
+def enviar_pdf(aula_id, dados, prefixo='aula', dpi=110):
     """Converte o PDF e envia as páginas. Devolve lista de (numero, caminho, texto)."""
     if not configurado():
         raise ErroSlides('O armazenamento de slides ainda não está configurado no servidor.')
-    paginas = converter_pdf(dados)
-    pasta = f"aula-{aula_id}/{uuid.uuid4().hex[:10]}"
+    paginas = converter_pdf(dados, dpi)
+    pasta = f"{prefixo}-{aula_id}/{uuid.uuid4().hex[:10]}"
     itens = [(i, f"{pasta}/pagina-{i}.jpg", imagem, texto) for i, (imagem, texto) in enumerate(paginas, start=1)]
     enviados = []
     try:

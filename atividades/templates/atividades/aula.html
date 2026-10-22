@@ -25,7 +25,7 @@
 
 {% if slides %}
 <details class="aprofundamento">
-<summary>Material de aprofundamento <span class="suave">({{ slides|length }} slide{{ slides|length|pluralize }})</span></summary>
+<summary>Slides <span class="suave">({{ slides|length }} slide{{ slides|length|pluralize }})</span></summary>
 <section class="slides" id="slides" aria-label="Slides da aula" data-total="{{ slides|length }}">
     <div class="slides-palco" id="slides-palco">
         {% for s in slides %}
@@ -51,6 +51,26 @@
 </details>
 {% else %}
 <p class="cartao">Esta aula ainda não tem slides.</p>
+{% endif %}
+
+{% if material %}
+<details class="aprofundamento">
+<summary>Material de aprofundamento <span class="suave">({{ material|length }} página{{ material|length|pluralize }})</span></summary>
+<section class="material" aria-label="Material de aprofundamento">
+    {% for p in material %}
+    <figure class="material-pagina">
+        <img src="{{ p.url }}" alt="Página {{ forloop.counter }} de {{ material|length }} do material de aprofundamento" loading="lazy">
+        {% if p.texto %}
+        <details class="slide-texto">
+            <summary>Ver o texto desta página</summary>
+            <p>{{ p.texto|linebreaksbr }}</p>
+        </details>
+        {% endif %}
+        <figcaption class="suave">Página {{ forloop.counter }} de {{ material|length }}</figcaption>
+    </figure>
+    {% endfor %}
+</section>
+</details>
 {% endif %}
 
 {% if papel == 'professor' %}
@@ -103,6 +123,25 @@
     <form method="post" action="{% url 'aula_slides_remover' aula.pk %}" class="form-remover">
         {% csrf_token %}
         <button type="submit" class="botao-contorno">Remover slides</button>
+    </form>
+    {% endif %}
+</section>
+
+<section class="cartao painel" aria-labelledby="titulo-material">
+    <h2 id="titulo-material">{% if material %}Trocar o material de aprofundamento{% else %}Material de aprofundamento{% endif %}</h2>
+    <p class="suave">PDF de leitura (texto corrido, páginas na vertical). Máximo de 40 páginas e 20 MB.</p>
+    <form method="post" action="{% url 'aula_material' aula.pk %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="campo">
+            <label for="id_pdf_material">Arquivo PDF do material</label>
+            <input type="file" name="pdf" id="id_pdf_material" accept="application/pdf,.pdf" required>
+        </div>
+        <button type="submit" class="botao botao-auto">Enviar</button>
+    </form>
+    {% if material %}
+    <form method="post" action="{% url 'aula_material_remover' aula.pk %}" class="form-remover">
+        {% csrf_token %}
+        <button type="submit" class="botao-contorno">Remover material</button>
     </form>
     {% endif %}
 </section>

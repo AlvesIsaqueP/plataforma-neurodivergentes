@@ -53,6 +53,16 @@ class AtribuirAtividadeForm(_AlunosMixin, forms.ModelForm):
         self._configurar_alunos()
 
 
+class MaterialForm(forms.Form):
+    pdf = forms.FileField(label='Arquivo PDF do material')
+
+    def clean_pdf(self):
+        arquivo = self.cleaned_data['pdf']
+        if not arquivo.name.lower().endswith('.pdf'):
+            raise forms.ValidationError('Envie um arquivo PDF.')
+        return arquivo
+
+
 class SlidesForm(forms.Form):
     pdf = forms.FileField(label='Arquivo PDF dos slides')
 

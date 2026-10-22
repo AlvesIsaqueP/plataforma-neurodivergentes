@@ -57,6 +57,26 @@ class SlideAula(models.Model):
         return f"{self.aula.titulo} - slide {self.numero}"
 
 
+class MaterialAula(models.Model):
+    """Páginas de um PDF de leitura (texto na vertical), diferente dos slides."""
+    aula = models.ForeignKey(Aula, on_delete=models.CASCADE, related_name='material')
+    numero = models.PositiveSmallIntegerField()
+    caminho = models.CharField(max_length=300)
+    texto = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['numero']
+        unique_together = ('aula', 'numero')
+
+    @property
+    def url(self):
+        from .slides import url_publica
+        return url_publica(self.caminho)
+
+    def __str__(self):
+        return f"{self.aula.titulo} - material, página {self.numero}"
+
+
 class Atividade(models.Model):
     TIPOS = [
         ('jogo', 'Jogo'),

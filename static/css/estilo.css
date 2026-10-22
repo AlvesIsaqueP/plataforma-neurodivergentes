@@ -528,7 +528,10 @@ fieldset.campo {
     padding: 0.5rem 1rem;
     border: var(--espessura) solid var(--texto);
     border-radius: 8px;
+    background: transparent;
     color: var(--texto);
+    font: inherit;
+    cursor: pointer;
     text-decoration: none;
 }
 
@@ -1150,3 +1153,8 @@ fieldset.campo {
 .aprofundamento > summary:focus-visible { outline: 3px solid var(--destaque, #2f5fd0); outline-offset: 2px; }
 .aprofundamento[open] > summary { border-bottom: 1px solid var(--borda); }
 .aprofundamento > .slides { padding: 1rem; margin: 0; }
+
+.material { padding: 1rem; display: grid; gap: 1.25rem; }
+.material-pagina { margin: 0; }
+.material-pagina img { display: block; width: 100%; max-width: 900px; height: auto; margin: 0 auto; border: 1px solid var(--borda); border-radius: 6px; background: #fff; }
+.material-pagina figcaption { text-align: center; margin-top: .35rem; font-size: .85rem; }

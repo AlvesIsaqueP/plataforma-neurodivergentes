@@ -11,9 +11,9 @@ from alunos.models import Aluno
 from usuarios.permissions import eh_professor, professor_required
 from . import slides as servico_slides
 from . import videos as servico_videos
-from .forms import (MateriaForm, AulaForm, AtividadeForm, QuestaoForm, CorrecaoForm, SlidesForm,
+from .forms import (MateriaForm, AulaForm, AtividadeForm, QuestaoForm, CorrecaoForm, SlidesForm, MaterialForm,
                     AtribuirAulaForm, AtribuirAtividadeForm, VideoForm)
-from .models import Materia, Aula, SlideAula, Atividade, Questao, Progresso, Resposta
+from .models import Materia, Aula, SlideAula, MaterialAula, Atividade, Questao, Progresso, Resposta
 
 
 def _aluno(request):
@@ -126,7 +126,7 @@ def aula_atribuir(request, pk):
 def aula_detalhe(request, pk):
     aula = get_object_or_404(_visiveis(Aula.objects.select_related('materia'), request), pk=pk)
     return render(request, 'atividades/aula.html', {
-        'aula': aula, 'slides': list(aula.slides.all()), 'form_slides': SlidesForm(), 'form_video': VideoForm(),
+        'aula': aula, 'slides': list(aula.slides.all()), 'material': list(aula.material.all()), 'form_slides': SlidesForm(), 'form_video': VideoForm(),
         'alunos_aula': aula.alunos.order_by('nome')})
 
 
@@ -153,6 +153,43 @@ def aula_slides(request, pk):
             [SlideAula(aula=aula, numero=n, caminho=c, texto=t) for n, c, t in novos])
     servico_slides.apagar(antigos)
     messages.success(request, f'{len(novos)} slides enviados.')
+    return redirect('aula', pk=pk)
+
+
+@professor_required
+def aula_material(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method != 'POST':
+        return redirect('aula', pk=pk)
+    form = MaterialForm(request.POST, request.FILES)
+    if not form.is_valid():
+        for erro in form.errors.get('pdf', ['Envie um arquivo PDF.']):
+            messages.error(request, erro)
+        return redirect('aula', pk=pk)
+    try:
+        novos = servico_slides.enviar_pdf(aula.pk, form.cleaned_data['pdf'].read(), prefixo='material', dpi=130)
+    except servico_slides.ErroSlides as erro:
+        messages.error(request, str(erro))
+        return redirect('aula', pk=pk)
+
+    antigos = list(aula.material.values_list('caminho', flat=True))
+    with transaction.atomic():
+        aula.material.all().delete()
+        MaterialAula.objects.bulk_create(
+            [MaterialAula(aula=aula, numero=n, caminho=c, texto=t) for n, c, t in novos])
+    servico_slides.apagar(antigos)
+    messages.success(request, f'Material de aprofundamento enviado ({len(novos)} páginas).')
+    return redirect('aula', pk=pk)
+
+
+@professor_required
+def aula_material_remover(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method == 'POST':
+        antigos = list(aula.material.values_list('caminho', flat=True))
+        aula.material.all().delete()
+        servico_slides.apagar(antigos)
+        messages.success(request, 'Material de aprofundamento removido.')
     return redirect('aula', pk=pk)
 
 
@@ -430,6 +467,7 @@ def corrigir(request, pk):
 def _caminhos_slides(aulas):
     """Imagens dos slides e arquivos de vídeo das aulas, para apagar do armazenamento."""
     caminhos = list(SlideAula.objects.filter(aula__in=aulas).values_list('caminho', flat=True))
+    caminhos += list(MaterialAula.objects.filter(aula__in=aulas).values_list('caminho', flat=True))
     caminhos += [c for c in aulas.values_list('video_caminho', flat=True) if c]
     return caminhos
 
@@ -464,7 +502,7 @@ def aula_excluir(request, pk):
         servico_slides.apagar(caminhos)
         messages.success(request, f'Aula "{titulo}" excluída.')
         return redirect('materia', pk=materia_pk)
-    avisos = [f'Os {aula.slides.count()} slide(s) desta aula também serão apagados.', 'Essa ação não pode ser desfeita.']
+    avisos = [f'Os {aula.slides.count()} slide(s) e as {aula.material.count()} página(s) de material desta aula também serão apagados.', 'Essa ação não pode ser desfeita.']
     return _confirmar(request, f'Excluir a aula "{aula.titulo}"?', avisos, reverse('aula', args=[pk]))
 
 

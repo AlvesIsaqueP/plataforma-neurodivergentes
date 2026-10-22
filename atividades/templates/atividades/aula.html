@@ -24,6 +24,8 @@
 {% endif %}
 
 {% if slides %}
+<details class="aprofundamento">
+<summary>Material de aprofundamento <span class="suave">({{ slides|length }} slide{{ slides|length|pluralize }})</span></summary>
 <section class="slides" id="slides" aria-label="Slides da aula" data-total="{{ slides|length }}">
     <div class="slides-palco" id="slides-palco">
         {% for s in slides %}
@@ -46,6 +48,7 @@
     </div>
     <p class="suave slides-dica">Dica: use as setas do teclado para trocar de slide.</p>
 </section>
+</details>
 {% else %}
 <p class="cartao">Esta aula ainda não tem slides.</p>
 {% endif %}

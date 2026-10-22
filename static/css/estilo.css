@@ -1144,3 +1144,9 @@ fieldset.campo {
 .afirmativa { margin: .5rem 0; padding-left: .5rem; border-left: 3px solid var(--borda, #ccc); }
 .afirmativa p { margin: 0 0 .25rem; }
 .afirmativa .opcao { display: inline-flex; margin-right: 1rem; }
+
+.aprofundamento { margin: 1rem 0; border: 1px solid var(--borda); border-radius: 8px; background: var(--cartao, transparent); }
+.aprofundamento > summary { cursor: pointer; padding: .7rem 1rem; font-weight: 600; }
+.aprofundamento > summary:focus-visible { outline: 3px solid var(--destaque, #2f5fd0); outline-offset: 2px; }
+.aprofundamento[open] > summary { border-bottom: 1px solid var(--borda); }
+.aprofundamento > .slides { padding: 1rem; margin: 0; }

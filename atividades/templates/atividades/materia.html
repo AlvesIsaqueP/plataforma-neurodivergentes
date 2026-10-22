@@ -3,6 +3,7 @@
 {% block conteudo %}
 <p><a href="{% url 'materias' %}">← Voltar para as matérias</a></p>
 <h1>{{ materia.nome }}</h1>
+{% if papel == 'professor' %}<p class="acoes-pagina"><a class="botao-perigo" href="{% url 'materia_excluir' materia.pk %}">Excluir matéria</a></p>{% endif %}
 
 <h2>Aulas</h2>
 {% if papel == 'professor' %}<p><a class="botao botao-link" href="{% url 'aula_nova' %}?materia={{ materia.pk }}">Adicionar aula</a></p>{% endif %}

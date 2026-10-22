@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 
 from alunos.models import Aluno
@@ -339,3 +340,69 @@ def corrigir(request, pk):
         return redirect('notas')
     return render(request, 'atividades/corrigir.html', {
         'progresso': progresso, 'respostas': respostas, 'form': form})
+
+
+# ---------- Exclusões ----------
+
+def _caminhos_slides(aulas):
+    return list(SlideAula.objects.filter(aula__in=aulas).values_list('caminho', flat=True))
+
+
+def _confirmar(request, titulo, avisos, cancelar):
+    return render(request, 'atividades/confirmar_exclusao.html', {
+        'titulo': titulo, 'avisos': avisos, 'cancelar': cancelar})
+
+
+@professor_required
+def materia_excluir(request, pk):
+    materia = get_object_or_404(Materia, pk=pk)
+    if request.method == 'POST':
+        caminhos = _caminhos_slides(materia.aulas.all())
+        nome = materia.nome
+        materia.delete()
+        servico_slides.apagar(caminhos)
+        messages.success(request, f'Matéria "{nome}" excluída.')
+        return redirect('materias')
+    avisos = [f'{materia.aulas.count()} aula(s) e {materia.atividades.count()} atividade(s) desta matéria '
+              'serão apagadas junto, com as respostas e notas dos alunos.', 'Essa ação não pode ser desfeita.']
+    return _confirmar(request, f'Excluir a matéria "{materia.nome}"?', avisos, reverse('materia', args=[pk]))
+
+
+@professor_required
+def aula_excluir(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method == 'POST':
+        caminhos = list(aula.slides.values_list('caminho', flat=True))
+        materia_pk, titulo = aula.materia_id, aula.titulo
+        aula.delete()
+        servico_slides.apagar(caminhos)
+        messages.success(request, f'Aula "{titulo}" excluída.')
+        return redirect('materia', pk=materia_pk)
+    avisos = [f'Os {aula.slides.count()} slide(s) desta aula também serão apagados.', 'Essa ação não pode ser desfeita.']
+    return _confirmar(request, f'Excluir a aula "{aula.titulo}"?', avisos, reverse('aula', args=[pk]))
+
+
+@professor_required
+def atividade_excluir(request, pk):
+    atividade = get_object_or_404(Atividade, pk=pk)
+    if request.method == 'POST':
+        titulo = atividade.titulo
+        atividade.delete()
+        messages.success(request, f'Atividade "{titulo}" excluída.')
+        return redirect('atividades')
+    avisos = [f'{atividade.questoes.count()} questão(ões) e {atividade.progressos.count()} entrega(s) de alunos '
+              'serão apagadas junto, com as notas.', 'Essa ação não pode ser desfeita.']
+    return _confirmar(request, f'Excluir a atividade "{atividade.titulo}"?', avisos, reverse('atividade', args=[pk]))
+
+
+@professor_required
+def questao_excluir(request, pk):
+    questao = get_object_or_404(Questao, pk=pk)
+    atividade_pk = questao.atividade_id
+    if request.method == 'POST':
+        questao.delete()
+        messages.success(request, 'Questão excluída.')
+        return redirect('atividade', pk=atividade_pk)
+    avisos = [f'{questao.respostas.count()} resposta(s) de alunos a esta questão serão apagadas.',
+              'As notas já calculadas não mudam.', 'Essa ação não pode ser desfeita.']
+    return _confirmar(request, 'Excluir esta questão?', avisos, reverse('atividade', args=[atividade_pk]))

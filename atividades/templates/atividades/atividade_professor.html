@@ -3,6 +3,7 @@
 {% block conteudo %}
 <p><a href="{% url 'atividades' %}">← Voltar para as atividades</a></p>
 <h1>{{ atividade.titulo }}</h1>
+<p class="acoes-pagina"><a class="botao-perigo" href="{% url 'atividade_excluir' atividade.pk %}">Excluir atividade</a></p>
 <p class="suave">{{ atividade.materia.nome }} · {{ atividade.get_tipo_display }} · dificuldade {{ atividade.nivel_dificuldade }}</p>
 {% if atividade.descricao %}<p>{{ atividade.descricao|linebreaksbr }}</p>{% endif %}
 {% if atividade.arquivo_ou_url %}<p>Link: <a href="{{ atividade.arquivo_ou_url }}" target="_blank" rel="noopener">{{ atividade.arquivo_ou_url }}<span class="sr-only"> (abre em nova aba)</span></a></p>{% endif %}
@@ -19,14 +20,17 @@
 
 <h2>Questões</h2>
 <p><a class="botao botao-link" href="{% url 'questao_nova' atividade.pk %}">Adicionar questão</a></p>
-<ol class="lista-atividades">
+<ol class="lista-itens">
     {% for q in questoes %}
-    <li class="cartao">
-        <p>{{ q.enunciado }}</p>
-        <p class="suave">{{ q.get_tipo_resposta_display }}{% if q.resposta_correta %} · Resposta correta: {{ q.resposta_correta }}{% endif %}</p>
+    <li class="item-simples">
+        <div>
+            <p class="item-titulo">{{ q.enunciado }}</p>
+            <p class="suave">{{ q.get_tipo_resposta_display }}{% if q.resposta_correta %} · Resposta correta: {{ q.resposta_correta }}{% endif %}</p>
+        </div>
+        <a class="botao-perigo" href="{% url 'questao_excluir' q.pk %}">Excluir<span class="sr-only"> questão: {{ q.enunciado|truncatechars:40 }}</span></a>
     </li>
     {% empty %}
-    <li class="cartao">Nenhuma questão ainda.</li>
+    <li class="cartao-vazio">Nenhuma questão ainda.</li>
     {% endfor %}
 </ol>
 
